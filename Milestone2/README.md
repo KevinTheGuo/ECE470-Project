@@ -1,6 +1,6 @@
 # Instructions on running a robot simulation
 
-# kthayyi2, edvall2, kguo10
+By kthayyi2, edvall2, kguo10
 
 1. Download V-REP from [here](http://www.coppeliarobotics.com/downloads.html)
 2. Run the installer (make sure you have the recommended disk space)
