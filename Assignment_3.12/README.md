@@ -18,3 +18,11 @@ From these diagrams and measurements, you can sketch a similar schematic to that
 To derive forward kinematics, write a quick Python program in Jupyter Notebook, with your expert knowledge of forward kinematics. With this program, you can derive a spatial screw of the robot, which you can then matrix multiply by an array of thetas representing each joint angle, to derive a predicted end position frame for the robot's end effector.
 
 Now that you have calculated out the forward kinematics, use the derived screw in the Python code connected to the V-REP simulator to draw a predicted end effector frame when given a certain set of theta joint angles
+
+## 3. Moving the robot and displaying the predicted end frame in simulation
+Our code consists of three main components. First, the VREP API is used to connect to the simulation session through Python. This is done by starting a simulation server, then requesting a clientID for the session.
+
+Next, we enumerate the Kuka's joints by requesting handlers for each joint. All joints are initialized to zero.
+Next, the user is prompted for a set of seven joint angles for the final pose. These angles are then used to calculate the forward kinematics of the robot.
+
+In addition to this, a dummy object is used to visualize the frame object
