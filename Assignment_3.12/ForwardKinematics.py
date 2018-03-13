@@ -1,3 +1,4 @@
+# Kuka Forward Kinematics
 import numpy as np
 import scipy.linalg as syl
 
@@ -21,10 +22,6 @@ def rotat_screw(a,q):
     S[3:6,0:1] = -skew_sym(a) @ q
     return S
 
-
-
-
-# Kuka Forward Kinematics
 # All measurements are in meters and radians
 
 # Joint:          1  2  3  4  5  6  7
@@ -32,32 +29,32 @@ theta = np.array([0, 0, 0, 0, 0, 0, 0])
 
 
 R = np.array([[1,0,0],[0,1,0],[0,0,1]])
-p = np.array([[0],[1.306],[0]])
+p = np.array([[0],[0],[1.266]])
 M = np.zeros((4,4))
 M[0:3, 0:3] = R
 M[0:3, 3:4] = p
 M[3, 3] = 1
 
 
-a_1 = np.array([[0],[1],[0]])
+a_1 = np.array([[0],[0],[1]])
 q_1 = np.array([[0],[0],[0]])
 
-a_2 = np.array([[1],[0],[0]])
-q_2 = np.array([[0],[0.360],[0]])
+a_2 = np.array([[0],[1],[0]])
+q_2 = np.array([[0],[0],[0.340]])
 
-a_3 = np.array([[0],[1],[0]])
+a_3 = np.array([[0],[0],[1]])
 q_3 = np.array([[0],[0],[0]])
 
-a_4 = np.array([[-1],[0],[0]])
-q_4 = np.array([[0],[0.780],[0]])
+a_4 = np.array([[0],[-1],[0]])
+q_4 = np.array([[0],[0],[0.740]])
 
-a_5 = np.array([[0],[1],[0]])
+a_5 = np.array([[0],[0],[1]])
 q_5 = np.array([[0],[0],[0]])
 
-a_6 = np.array([[1],[0],[0]])
-q_6 = np.array([[0],[1.180],[0]])
+a_6 = np.array([[0],[1],[0]])
+q_6 = np.array([[0],[0],[1.140]])
 
-a_7 = np.array([[0],[1],[0]])
+a_7 = np.array([[0],[0],[1]])
 q_7 = np.array([[0],[0],[0]])
 
 S = np.zeros((6,7))
@@ -78,5 +75,6 @@ T = (syl.expm(matrix_rep(S[0:6,0:1])*theta[0]) @
      syl.expm(matrix_rep(S[0:6,5:6])*theta[5]) @
      syl.expm(matrix_rep(S[0:6,6:7])*theta[6]) @ M)
 
-print(S)
+print(repr(M))
+print(repr(S))
 print(repr(T))
