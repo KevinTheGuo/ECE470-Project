@@ -50,6 +50,10 @@ if clientID != -1:
         errorCode, handle = vrep.simxGetObjectHandle(clientID, joint_name, vrep.simx_opmode_oneshot_wait)
         joint_handles.append(handle)
 
+    errorCode, movable_dummy_handle = vrep.simxGetObjectHandle(clientID, "Dummy", vrep.simx_opmode_oneshot_wait)
+    errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
+    print(dummy_pos)
+
     # Set the dummy to tool end effector
     vrep.simxSetObjectPosition(clientID, dummy_handle_0, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
     vrep.simxSetObjectOrientation(clientID, dummy_handle_0, -1, (0, 0, 0), vrep.simx_opmode_oneshot_wait)
@@ -83,23 +87,23 @@ if clientID != -1:
             # print("Setting joint", i+1, "to", theta_list[i])
             sleep(0.5)
 
-
+    # Add a new dummy on the moved robot end effector so we can compare the desired and actual positions
     errorCode, dummy_handle_1 = vrep.simxCreateDummy(clientID, 0.1, None, vrep.simx_opmode_oneshot_wait)
     vrep.simxSetObjectPosition(clientID, dummy_handle_1, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
     vrep.simxSetObjectOrientation(clientID, dummy_handle_1, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
 
+    # Grab the actual pose
     errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], joint_handles[0],
                                                 vrep.simx_opmode_oneshot_wait)
-    # print("Actual pos:", pos)
     errorCode, angles = vrep.simxGetObjectQuaternion(clientID, joint_handles[6], joint_handles[0],
                                                      vrep.simx_opmode_oneshot_wait)
+    print("Actual pos:", pos)
     print("Actual qua:", angles)
 
     for i in range(7):
         theta = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
         print("Theta", i, "is", theta)
 
-    # sleep(10)
     input("Press any key to revert to origin...")
     print("")
 
