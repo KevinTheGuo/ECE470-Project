@@ -57,6 +57,8 @@ if clientID != -1:
     errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], -1, vrep.simx_opmode_oneshot_wait)
     print("Initial end effector position:", pos)
 
+    input("Press any key to move robot to desired location")
+
     # Get the desired pose by checking the pose of the user-movable dummy
     errorCode, pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, joint_handles[0],
                                                 vrep.simx_opmode_oneshot_wait)
@@ -64,8 +66,7 @@ if clientID != -1:
                                                          vrep.simx_opmode_oneshot_wait)
 
     # Mush the quaternion and pos into a pose matrix!
-    # Remember! V-REP gives quaternions like (x,y,z,w) but our function takes input quaternions in format (w, x, y, z)
-
+    # Our function takes care of the V-REP quaternion mismatch
     pose = quaternion.matrix_from_quaternion(quaternion)
     pose[0,3] = pos[0]
     pose[1,3] = pos[1]
@@ -82,36 +83,10 @@ if clientID != -1:
             # print("Setting joint", i+1, "to", theta_list[i])
             sleep(0.5)
 
-    # Show our predicted end effector position
-    pose = quaternion.forward_kinematics.forwardKinematics(theta_list)
-    quaternion = quaternion.forward_kinematics.quaternion_from_matrix(pose)
-    temp = quaternion[0]
-    quaternion[0] = quaternion[1]
-    quaternion[1] = quaternion[2]
-    quaternion[2] = quaternion[3]
-    quaternion[3] = temp
-    position = (pose[0, 3], pose[1, 3], pose[2, 3] - 0.193424112)
-    print("Theta:", theta_list)
-    print("Calculated qua:", quaternion)
 
-    # Show predicted position
     errorCode, dummy_handle_1 = vrep.simxCreateDummy(clientID, 0.1, None, vrep.simx_opmode_oneshot_wait)
-    vrep.simxSetObjectPosition(clientID, dummy_handle_1, joint_handles[0], position, vrep.simx_opmode_oneshot_wait)
-    vrep.simxSetObjectQuaternion(clientID, dummy_handle_1, joint_handles[0], quaternion, vrep.simx_opmode_oneshot_wait)
-    # print("\nEULER!",euler_angles)
-
-    input("Press any key to move to predicted location")
-
-    # Set the position of each joint
-    for i in range(7):
-        vrep.simxSetJointTargetPosition(clientID, joint_handles[i], theta_list[i], vrep.simx_opmode_oneshot_wait)
-        # print("Setting joint", i+1, "to", theta_list[i])
-
-    sleep(2)
-
-    errorCode, dummy_handle_3 = vrep.simxCreateDummy(clientID, 0.1, None, vrep.simx_opmode_oneshot_wait)
-    vrep.simxSetObjectPosition(clientID, dummy_handle_3, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
-    vrep.simxSetObjectOrientation(clientID, dummy_handle_3, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
+    vrep.simxSetObjectPosition(clientID, dummy_handle_1, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
+    vrep.simxSetObjectOrientation(clientID, dummy_handle_1, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
 
     errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], joint_handles[0],
                                                 vrep.simx_opmode_oneshot_wait)
@@ -136,7 +111,6 @@ if clientID != -1:
 
     vrep.simxRemoveObject(clientID, dummy_handle_0, vrep.simx_opmode_oneshot_wait)
     vrep.simxRemoveObject(clientID, dummy_handle_1, vrep.simx_opmode_oneshot_wait)
-    vrep.simxRemoveObject(clientID, dummy_handle_3, vrep.simx_opmode_oneshot_wait)
 
     # Now close the connection to V-REP:
     vrep.simxFinish(clientID)

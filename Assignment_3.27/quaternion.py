@@ -2,6 +2,7 @@
 import numpy as np
 import math
 
+# Takes input in quaternion style (x,y,z,w)
 def matrix_from_quaternion(quaternion):
     """Return homogeneous rotation matrix from quaternion.
 
@@ -16,12 +17,14 @@ def matrix_from_quaternion(quaternion):
     True
 
     """
-    # Remember! V-REP gives quaternions like (x,y,z,w) but our code below takes input quaternions in format (w, x, y, z)
-    temp = q[0]
-    q[0] = q[1]
-    q[1] = q[2]
-    q[2] = q[3]
-    q[3] = temp
+    # Remember! V-REP (our input parameter) gives quaternions like (x,y,z,w) but our code below takes input in format (w,x,y,z)
+    # So convert V-REP-style quaternions to our style so we can properly output a correct rotational matrix
+    # (x,y,z,w) -> (w,x,y,z)
+    temp = quaternion[3]
+    quaternion[3] = quaternion[2]
+    quaternion[2] = quaternion[1]
+    quaternion[1] = quaternion[0]
+    quaternion[0] = temp
 
     q = numpy.array(quaternion, dtype=numpy.float64, copy=True)
     n = numpy.dot(q, q)
@@ -37,6 +40,7 @@ def matrix_from_quaternion(quaternion):
 
 
 
+# Outputs quaternion in style (x,y,z,w)
 def quaternion_from_matrix(matrix, isprecise=False):
     """Return quaternion from rotation matrix.
     If isprecise is True, the input matrix is assumed to be a precise rotation
@@ -86,8 +90,9 @@ def quaternion_from_matrix(matrix, isprecise=False):
     if q[0] < 0.0:
         np.negative(q, q)
 
-    # Remember! V-REP takes in quaternions like (x,y,z,w) but our code above outputs quaternions in format (w, x, y, z).
+    # Remember! V-REP takes in quaternions like (x,y,z,w) but our code above outputs quaternions in format (w,x,y,z)
     # So convert q to the V-REP way
+    # (w,x,y,z) -> (x,y,z,w)
     temp = q[0]
     q[0] = q[1]
     q[1] = q[2]
