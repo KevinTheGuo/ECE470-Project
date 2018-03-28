@@ -50,6 +50,10 @@ if clientID != -1:
         errorCode, handle = vrep.simxGetObjectHandle(clientID, joint_name, vrep.simx_opmode_oneshot_wait)
         joint_handles.append(handle)
 
+    errorCode, movable_dummy_handle = vrep.simxGetObjectHandle(clientID, "Dummy", vrep.simx_opmode_oneshot_wait)
+    errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
+    print(dummy_pos)
+
     # Set the dummy to tool end effector
     vrep.simxSetObjectPosition(clientID, dummy_handle_0, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
     vrep.simxSetObjectOrientation(clientID, dummy_handle_0, -1, (0, 0, 0), vrep.simx_opmode_oneshot_wait)
