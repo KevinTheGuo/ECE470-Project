@@ -1,6 +1,2 @@
-*
-!.gitignore
-!vrep_sim.ttt
-!vrep_main.py
-!inverse_kinematics.py
-!forward_kinematics.py
+Assignment_3.27/.idea
+Assignment_3.27/__pycache__
