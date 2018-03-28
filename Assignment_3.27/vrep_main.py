@@ -13,18 +13,10 @@ import math
 import numpy as np
 from time import sleep
 
-try:
-    import vrep
-    import inverse_kinematics
-    import quaternion
-except:
-    print ('--------------------------------------------------------------')
-    print ('"vrep.py" could not be imported. This means very probably that')
-    print ('either "vrep.py" or the remoteApi library could not be found.')
-    print ('Make sure both are in the same folder as this file,')
-    print ('or appropriately adjust the file "vrep.py"')
-    print ('--------------------------------------------------------------')
-    print ('')
+import vrep
+import inverse_kinematics
+import quaternion
+
 
 import time
 
@@ -51,8 +43,6 @@ if clientID != -1:
         joint_handles.append(handle)
 
     errorCode, movable_dummy_handle = vrep.simxGetObjectHandle(clientID, "Dummy", vrep.simx_opmode_oneshot_wait)
-    errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
-    print(dummy_pos)
 
     # Set the dummy to tool end effector
     vrep.simxSetObjectPosition(clientID, dummy_handle_0, joint_handles[6], (0, 0, 0), vrep.simx_opmode_oneshot_wait)
@@ -64,23 +54,23 @@ if clientID != -1:
     input("Press any key to move robot to desired location")
 
     # Get the desired pose by checking the pose of the user-movable dummy
-    errorCode, pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, joint_handles[0],
-                                                vrep.simx_opmode_oneshot_wait)
-    errorCode, quaternion = vrep.simxGetObjectQuaternion(clientID, movable_dummy_handle, joint_handles[0],
-                                                         vrep.simx_opmode_oneshot_wait)
+    errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
+    print("Dummy pos: {}".format(dummy_pos))
+    errorCode, dummy_quaternion = vrep.simxGetObjectQuaternion(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
+    print("Dummy qua: {}".format(dummy_quaternion))
 
     # Mush the quaternion and pos into a pose matrix!
     # Our function takes care of the V-REP quaternion mismatch
-    pose = quaternion.matrix_from_quaternion(quaternion)
-    pose[0,3] = pos[0]
-    pose[1,3] = pos[1]
-    pose[2,3] = pos[2]
+    pose = quaternion.matrix_from_quaternion(dummy_quaternion)
+    pose[0,3] = dummy_pos[0]
+    pose[1,3] = dummy_pos[1]
+    pose[2,3] = dummy_pos[2]
     print("Pose is: {}".format(pose))
 
     # Get the thetas required to move the robot to the desired position
     theta_list = inverse_kinematics.inverse_kinematics(pose)
-    print("Thetas are: {}".format(thetas))
-    if thetas is not None:
+    print("Thetas are: {}".format(theta_list))
+    if theta_list is not None:
         print("Moving robot")
         for i in range(7):              # Set the position of each joint
             vrep.simxSetJointTargetPosition(clientID, joint_handles[i], theta_list[i], vrep.simx_opmode_oneshot_wait)
