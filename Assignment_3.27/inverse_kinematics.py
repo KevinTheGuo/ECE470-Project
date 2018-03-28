@@ -1,6 +1,5 @@
 # Kuka inverse kinematics
 # All measurements are in meters and radians
-import math
 import numpy as np
 import scipy.linalg as sl
 
@@ -50,10 +49,8 @@ def rotat_screw(a,q):
     S[3:6,0:1] = -skew_sym(a) @ q
     return S
 
-def inverse_kinematics(T_1in0):
-    T_1in0 = np.array([[4, -0.00365349, 0.99797351, -1.01366510], [-0.87916897, -0.47341421, 0.05423015, 6.98372767], [0.47225671, -0.88083235, -0.03328603, -4.41085091], [0.00000000, 0.00000000, 0.00000000, 1.00000000]])
+def inverse_kinematics(T_1in0, initial_guess=np.full((NUM_JOINTS,1),0), iterationMax=42):
     M = np.array([[1., 0., 0., 0.], [0., 1., 0., 0.], [0., 0., 1., 1.266], [0., 0., 0., 1.]])
-
     S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
 
     NUM_JOINTS = 7
@@ -65,9 +62,8 @@ def inverse_kinematics(T_1in0):
 
     print("Please wait... processing question:\n")
 
-    # Variables to check if a pose is unreachable
+    # Variable to check how many iterations we're at so far
     iterations = 0
-    iterationMax = 100
 
     while(True):
         # 1: Find current pose of tool given theta guess (frame 2)

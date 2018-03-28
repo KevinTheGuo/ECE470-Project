@@ -36,28 +36,31 @@ if clientID != -1:
     # Make a Dummy
     errorCode, dummy_handle_0 = vrep.simxCreateDummy(clientID,0.1,None,vrep.simx_opmode_oneshot_wait)
 
-    # Joint:                1   2    3    4   5   6    7
+    # Get the ID of the user-movable dummy to indicate desired position
+    movable_dummy_handle = 420
+
+    # Initial thetas:       1   2    3    4   5   6    7
     theta_list = np.array([1.0,1.57,1.0,1.57,0.0,1.57,0.0])
 
-    for i in range(7):
-        theta_list[i] = float(input("Enter number for joint {}: ".format(i+1)))
-        # theta_list[i] = (theta_list[i] * math.pi) / 180
-
-    # List to store our joint handles in
-    joint_handles = []
-
     # Loop through all the robot's joints and get unique ID's for each
+    joint_handles = []
     for i in range(7):
         joint_name = 'LBR_iiwa_7_R800_joint' + str(i + 1)
         errorCode, handle = vrep.simxGetObjectHandle(clientID, joint_name, vrep.simx_opmode_oneshot_wait)
         joint_handles.append(handle)
 
-    #Set to dummy to tool end
+    #Set the dummy to tool end effector
     vrep.simxSetObjectPosition(clientID, dummy_handle_0, joint_handles[6], (0,0,0), vrep.simx_opmode_oneshot_wait)
     vrep.simxSetObjectOrientation(clientID,dummy_handle_0,-1,(0,0,0),vrep.simx_opmode_oneshot_wait)
 
     errorCode, pos = vrep.simxGetObjectPosition(clientID,joint_handles[6],-1,vrep.simx_opmode_oneshot_wait)
-    print("Initial end pos:",pos)
+    print("Initial end effector pos:",pos)
+
+    # Get the desired position by checking the pose of the user-movable dummy
+    errorCode, pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle , joint_handles[0], vrep.simx_opmode_oneshot_wait)
+    errorCode, quaternion = vrep.simxGetObjectQuaternion(clientID, movable_dummy_handle, joint_handles[0], vrep.simx_opmode_oneshot_wait)
+
+
 
     # Show our predicted end effector position
     pose = forward_kinematics.forwardKinematics(theta_list)
