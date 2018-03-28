@@ -19,9 +19,9 @@ We calculate inverse kinematics through an iterative, numerical method. The roug
 5. Perform the inverse velocity kinematics, and find thetadot. Use the new algorithm which works on robots with more/less than 6 joints!
 6. Calculate the new set of theta angles for the robot joints by applying our calculated thetadot for 1 second
 7. Repeat steps 2-6 until the norm of our spatial twist is below a specified cutoff!
-The exact functions and code are found in the inverse_kinematics.py file in this folder. 
+The exact functions and code are found in the inverse_kinematics.py file in this folder.
 
-## 3. Moving the robot and displaying the predicted end frame in simulation
+## 3. Moving a
 Our code consists of three main components. First, the VREP API is used to connect to the simulation session through Python. This is done by starting a simulation server, then requesting a clientID for the session.
 
 Next, we enumerate the Kuka's joints by requesting handlers for each joint. All joints are initialized to zero.

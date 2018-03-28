@@ -2,6 +2,8 @@
 import numpy
 import math
 
+_EPS = numpy.finfo(float).eps * 4.0
+
 # Takes input in quaternion style (x,y,z,w)
 def matrix_from_quaternion(quaternion):
     """Return homogeneous rotation matrix from quaternion.
