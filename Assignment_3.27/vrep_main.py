@@ -41,6 +41,10 @@ if clientID != -1:
 
     errorCode, movable_dummy_handle = vrep.simxGetObjectHandle(clientID, "Dummy", vrep.simx_opmode_oneshot_wait)
 
+    prev_dummy_pos = None
+    prev_dummy_quaternion = None
+
+
     try:
         while True:
             errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], -1, vrep.simx_opmode_oneshot_wait)
@@ -53,6 +57,9 @@ if clientID != -1:
             print("Dummy pos: {}".format(dummy_pos))
             errorCode, dummy_quaternion = vrep.simxGetObjectQuaternion(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
             print("Dummy qua: {}".format(dummy_quaternion))
+
+            if (dummy_pos == prev_dummy_pos) and (dummy_quaternion == dummy_quaternion):
+                pass
 
             # Mush the quaternion and pos into a pose matrix!
             # Our function takes care of the V-REP quaternion mismatch
