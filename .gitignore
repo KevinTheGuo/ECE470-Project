@@ -1,0 +1,6 @@
+*
+!.gitignore
+!vrep_sim.ttt
+!vrep_main.py
+!inverse_kinematics.py
+!forward_kinematics.py
