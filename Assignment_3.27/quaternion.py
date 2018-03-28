@@ -1,5 +1,5 @@
 # File with quaternion-rotationalmatrix conversion functions
-import numpy as np
+import numpy
 import math
 
 # Takes input in quaternion style (x,y,z,w)
