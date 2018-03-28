@@ -49,16 +49,14 @@ def rotat_screw(a,q):
     S[3:6,0:1] = -skew_sym(a) @ q
     return S
 
-def inverse_kinematics(T_1in0, initial_guess=np.full((NUM_JOINTS,1),0), iterationMax=42):
+def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=42):
     M = np.array([[1., 0., 0., 0.], [0., 1., 0., 0.], [0., 0., 1., 1.266], [0., 0., 0., 1.]])
     S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
-
-    NUM_JOINTS = 7
 
     print("Hi, and welcome to the Robo-Swagorithm 3001!\n")
 
     # Make first theta guess
-    theta = np.full((NUM_JOINTS,1),0)
+    theta = np.full((7,1),0)
 
     print("Please wait... processing question:\n")
 
@@ -80,7 +78,7 @@ def inverse_kinematics(T_1in0, initial_guess=np.full((NUM_JOINTS,1),0), iteratio
         V = inv_matrix_rep(sl.logm(T_1in0 @ sl.inv(T_2in0)))
 
         # 3: Find space Jacobian as function of current theta
-        J = np.zeros((6,NUM_JOINTS))
+        J = np.zeros((6,7))
         J[0:6,0:1] = jacobian(S,theta,1)
         J[0:6,1:2] = jacobian(S,theta,2)
         J[0:6,2:3] = jacobian(S,theta,3)
@@ -91,7 +89,7 @@ def inverse_kinematics(T_1in0, initial_guess=np.full((NUM_JOINTS,1),0), iteratio
 
         # 4: Perform inverse velocity kinematics, find thetadot. But use our new algorithm this time!
         mu = 0.01
-        thetadot = sl.inv(np.transpose(J)@J + mu*np.identity(NUM_JOINTS)) @ np.transpose(J) @ V
+        thetadot = sl.inv(np.transpose(J)@J + mu*np.identity(7)) @ np.transpose(J) @ V
 
         # 5: Calculate new theta by applying our calculated thetadot for 1 second
         theta = theta + thetadot

@@ -59,7 +59,7 @@ if clientID != -1:
 
     input("Press any key to move robot to desired location")
 
-    # Get the desired pose by checking the pose of the user-movable dummy
+    # Get the desired pose of the user-movable dummy
     errorCode, pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, joint_handles[0],
                                                 vrep.simx_opmode_oneshot_wait)
     errorCode, quaternion = vrep.simxGetObjectQuaternion(clientID, movable_dummy_handle, joint_handles[0],
