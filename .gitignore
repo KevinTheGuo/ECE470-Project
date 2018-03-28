@@ -1,2 +1,6 @@
-Assignment_3.27/.idea
-Assignment_3.27/__pycache__
+\Assignment_3.27 *
+
+!vrep_main.py
+!forward_kinematics.py
+!inverse_kinematics.py
+!quaternion.py
