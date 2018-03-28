@@ -21,8 +21,9 @@ We calculate inverse kinematics through an iterative, numerical method. The roug
 7. Repeat steps 2-6 until the norm of our spatial twist is below a specified cutoff!
 The exact functions and code are found in the inverse_kinematics.py file in this folder.
 
-## 3. Moving a
-Our code consists of three main components. First, the VREP API is used to connect to the simulation session through Python. This is done by starting a simulation server, then requesting a clientID for the session.
+## 3. Taking in desired position and moving the robot
+Our code consists of several major components. First, as in the previous week, use the VREP API to start a simulation server and connect to the simulation session through Python. First, the VREP API is used to connect to the simulation session through Python.
+Next, grab handlers for each of the Kuka's joints, as well as the user-movable dummy.
 
 Next, we enumerate the Kuka's joints by requesting handlers for each joint. All joints are initialized to zero.
 Next, the user is prompted for a set of seven joint angles for the final pose. These angles are then used to calculate the forward kinematics of the robot.
