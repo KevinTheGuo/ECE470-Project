@@ -1,6 +1,7 @@
 # Week Three: Demonstrating Inverse Kinematics
-## 1. Connecting Python to V-REP
 
+## 1. Connecting Python to V-REP
+### These are the same initial steps as the past weeks'
 1. Install Python from  [here](https://www.python.org/downloads/release/python-364/)
 2. You will also need two use an IDE for Python, we used [PyCharm](https://www.jetbrains.com/pycharm/) but you can use whatever you like
 3. Connecting Python to the V-REP simulator are is a onetime process that you will have to do before you can run the provided Python code
@@ -9,7 +10,7 @@
     a. Make sure you have the right version of V-REP installed. We used educational version. If you have the player version installed then you will not be successful.
     b. Make sure you have the right version of Python installed. We use Python 3 and there may be potential incompatibilities using Python 2  
 
-## 2. Deriving Forward Kinematics for the KUKA iiwa 7
+## 2. Calculating
 The schematics for the KUKA robot are available [in this PDF](https://www.kuka.com/-/media/kuka-downloads/imported/48ec812b1b2947898ac2598aff70abc0/spez_kr_15_sl_en.pdf).
 The joint locations and orientations are located on page 10, and relevant robot dimensions are located on page 13. If you want, the maximum and minimum angle restrictions are available on page 12.
 

@@ -1,6 +1,6 @@
 # Week Two: Deriving and displaying forward kinematics in a robot simulation
-## 1. Connecting Python to V-REP
 
+## 1. Connecting Python to V-REP
 1. Install Python from  [here](https://www.python.org/downloads/release/python-364/)
 2. You will also need two use an IDE for Python, we used [PyCharm](https://www.jetbrains.com/pycharm/) but you can use whatever you like
 3. Connecting Python to the V-REP simulator are is a onetime process that you will have to do before you can run the provided Python code

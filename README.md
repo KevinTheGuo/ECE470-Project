@@ -1,6 +1,10 @@
 # ECE470 project
 ### kguo10, edvall2, kthayyi2
 
+#### Assignment 3.05- Displaying robot in V-REP
+#### Assignment 3.12- Calculating and Demonstrating Forward Kinematics in V-REP
+#### Assignment 3.27- Calculating and Demonstrating Inverse Kinematics in V-REP
+
 ## Week One: Instructions on running a robot simulation
 1. Download V-REP from [here](http://www.coppeliarobotics.com/downloads.html)
 2. Run the installer (make sure you have the recommended disk space)
@@ -15,8 +19,8 @@
 11. Click "Play" on the top bar and watch as your robots come to life and mirror each other in real time!
 
 ## Week Two: Deriving and displaying forward kinematics in a robot simulation
-### 1. Connecting Python to V-REP
 
+### 1. Connecting Python to V-REP
 1. Install Python from  [here](https://www.python.org/downloads/release/python-364/)
 2. You will also need two use an IDE for Python, we used [PyCharm](https://www.jetbrains.com/pycharm/) but you can use whatever you like
 3. Connecting Python to the V-REP simulator are is a onetime process that you will have to do before you can run the provided Python code
