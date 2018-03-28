@@ -16,6 +16,13 @@ def matrix_from_quaternion(quaternion):
     True
 
     """
+    # Remember! V-REP gives quaternions like (x,y,z,w) but our code below takes input quaternions in format (w, x, y, z)
+    temp = q[0]
+    q[0] = q[1]
+    q[1] = q[2]
+    q[2] = q[3]
+    q[3] = temp
+
     q = numpy.array(quaternion, dtype=numpy.float64, copy=True)
     n = numpy.dot(q, q)
     if n < _EPS:
@@ -78,4 +85,13 @@ def quaternion_from_matrix(matrix, isprecise=False):
         q = V[[3, 0, 1, 2], np.argmax(w)]
     if q[0] < 0.0:
         np.negative(q, q)
+
+    # Remember! V-REP takes in quaternions like (x,y,z,w) but our code above outputs quaternions in format (w, x, y, z).
+    # So convert q to the V-REP way
+    temp = q[0]
+    q[0] = q[1]
+    q[1] = q[2]
+    q[2] = q[3]
+    q[3] = temp
+
     return q

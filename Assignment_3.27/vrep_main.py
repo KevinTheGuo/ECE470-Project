@@ -40,7 +40,7 @@ if clientID != -1:
     # Get the ID of the user-movable dummy to indicate desired position
     movable_dummy_handle = 420
 
-    # Initial thetas:       1   2    3    4   5   6    7
+    # Initial thetas:       1    2     3    4     5    6     7
     theta_list = np.array([1.0, 1.57, 1.0, 1.57, 0.0, 1.57, 0.0])
 
     # Loop through all the robot's joints and get unique ID's for each
@@ -55,15 +55,32 @@ if clientID != -1:
     vrep.simxSetObjectOrientation(clientID, dummy_handle_0, -1, (0, 0, 0), vrep.simx_opmode_oneshot_wait)
 
     errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], -1, vrep.simx_opmode_oneshot_wait)
-    print("Initial end effector pos:", pos)
+    print("Initial end effector position:", pos)
 
-    # Get the desired position by checking the pose of the user-movable dummy
+    # Get the desired pose by checking the pose of the user-movable dummy
     errorCode, pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, joint_handles[0],
                                                 vrep.simx_opmode_oneshot_wait)
     errorCode, quaternion = vrep.simxGetObjectQuaternion(clientID, movable_dummy_handle, joint_handles[0],
                                                          vrep.simx_opmode_oneshot_wait)
 
+    # Mush the quaternion and pos into a pose matrix!
+    # Remember! V-REP gives quaternions like (x,y,z,w) but our function takes input quaternions in format (w, x, y, z)
+
     pose = quaternion.matrix_from_quaternion(quaternion)
+    pose[0,3] = pos[0]
+    pose[1,3] = pos[1]
+    pose[2,3] = pos[2]
+    print("Pose is: {}".format(pose))
+
+    # Get the thetas required to move the robot to the desired position
+    theta_list = inverse_kinematics.inverse_kinematics(pose)
+    print("Thetas are: {}".format(thetas))
+    if thetas is not None:
+        print("Moving robot")
+        for i in range(7):              # Set the position of each joint
+            vrep.simxSetJointTargetPosition(clientID, joint_handles[i], theta_list[i], vrep.simx_opmode_oneshot_wait)
+            # print("Setting joint", i+1, "to", theta_list[i])
+            sleep(0.5)
 
     # Show our predicted end effector position
     pose = quaternion.forward_kinematics.forwardKinematics(theta_list)
