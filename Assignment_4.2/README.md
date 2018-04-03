@@ -8,19 +8,9 @@
 4. There is an excellent video that you can use to achieve this that explains it much better than any README file could. [Link to video.](https://www.youtube.com/watch?v=SQont-mTnfM)
 5. With that, here are some things to look out for when following the instructions in the video
     a. Make sure you have the right version of V-REP installed. We used educational version. If you have the player version installed then you will not be successful.
-    b. Make sure you have the right version of Python installed. We use Python 3 and there may be potential incompatibilities using Python 2
+    b. Make sure you have the right version of Python installed. We use Python 3 and there may be potential incompatibilities using Python 2  
 
-## 2. Calculating
-The schematics for the KUKA robot are available [in this PDF](https://www.kuka.com/-/media/kuka-downloads/imported/48ec812b1b2947898ac2598aff70abc0/spez_kr_15_sl_en.pdf).
-The joint locations and orientations are located on page 10, and relevant robot dimensions are located on page 13. If you want, the maximum and minimum angle restrictions are available on page 12.
-
-From these diagrams and measurements, you can sketch a similar schematic to that shown in "ForwardKinematics.pdf", drawn in the style of ECE470 homework assignments.
-
-To derive forward kinematics, write a quick Python program in Jupyter Notebook, with your expert knowledge of forward kinematics. With this program, you can derive a spatial screw of the robot, which you can then matrix multiply by an array of thetas representing each joint angle, to derive a predicted end position frame for the robot's end effector.
-
-Now that you have calculated out the forward kinematics, use the derived screw in the Python code connected to the V-REP simulator to draw a predicted end effector frame when given a certain set of theta joint angles
-
-## 3. Moving the robot and displaying the predicted end frame in simulation
+## 2. Moving the robot and displaying the predicted end frame in simulation
 Our code consists of three main components. First, the VREP API is used to connect to the simulation session through Python. This is done by starting a simulation server, then requesting a clientID for the session.
 
 Next, we enumerate the KUKA's joints by requesting handlers for each joint. All joints are initialized to zero.
@@ -28,20 +18,20 @@ Next, the user is prompted for a set of seven joint angles for the final pose. T
 
 In addition to this, a dummy object is used to visualize the frame object
 
-## 4. Moving the Robot through the Guiding Sphere™
+## 3. Moving the Robot through the Guiding Sphere™
 
 Click on the sphere to select it.
 You can now drag it around to represent the desired end position and orientation (pose) of the robot.
 The robot should follow the sphere to the new location. In case the sphere is posed out of bounds, the robot just remains in the last position while an error message is printed to the terminal.
 
-## 5. Moving and Collisions of Obstacle Dummies
+## 4. Moving and Collisions of Obstacle Dummies
 
 To demonstrate object collision detection, we used 5 different dummy objects to represent external objects.
 Click on a dummy and then click on move object tool. The dummy can be dragged to any position and released.
 The robot can then be moved using the method described above. Once moved, if the robot is in collision with any of the
 movable, external obstacles, a collision will be reported.
 
-## 6. Self Collisions
+## 5. Self Collisions
 
 When the robot is moved to a new position, it will not only check for collisions with external objects, but also check for collisions with itself.
 The robot has a bounding sphere at each joint. If that bounding sphere comes in contact with another joint bounding sphere, the robot is in self
