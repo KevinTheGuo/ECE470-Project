@@ -59,7 +59,7 @@ if clientID != -1:
             print("Dummy qua: {}".format(dummy_quaternion))
 
             if (dummy_pos == prev_dummy_pos) and (dummy_quaternion == dummy_quaternion):
-                pass
+                continue
 
             # Mush the quaternion and pos into a pose matrix!
             # Our function takes care of the V-REP quaternion mismatch
@@ -67,11 +67,11 @@ if clientID != -1:
             pose[0,3] = dummy_pos[0]
             pose[1,3] = dummy_pos[1]
             pose[2,3] = dummy_pos[2]
-            print("Pose is: {}".format(pose))
+            # print("Pose is: {}".format(pose))
 
             # Get the thetas required to move the robot to the desired position
             theta_list = inverse_kinematics.inverse_kinematics(pose)
-            print("Thetas are: {}".format(theta_list))
+            # print("Thetas are: {}".format(theta_list))
             if theta_list is not None:
                 print("Moving robot")
                 for i in range(7):              # Set the position of each joint
@@ -84,12 +84,15 @@ if clientID != -1:
                                                         vrep.simx_opmode_oneshot_wait)
             errorCode, angles = vrep.simxGetObjectQuaternion(clientID, joint_handles[6], joint_handles[0],
                                                              vrep.simx_opmode_oneshot_wait)
-            print("Actual pos:", pos)
-            print("Actual qua:", angles)
+            # print("Actual pos:", pos)
+            # print("Actual qua:", angles)
 
             for i in range(7):
                 theta = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
-                print("Theta", i, "is", theta)
+                # print("Theta", i, "is", theta)
+
+            prev_dummy_pos = dummy_pos
+            prev_dummy_quaternion = dummy_quaternion
     except KeyboardInterrupt:
         input("Press any key to revert to origin...")
         print("")
