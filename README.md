@@ -51,7 +51,7 @@ In addition to this, a dummy object is used to visualize the frame object
 ## Week Three: Demonstrating Inverse Kinematics
 
 ### 1. Connecting Python to V-REP
-#### These are the same initial steps as the past weeks'
+#### These are the same initial steps as the past week's
 1. Install Python from  [here](https://www.python.org/downloads/release/python-364/)
 2. You will also need two use an IDE for Python, we used [PyCharm](https://www.jetbrains.com/pycharm/) but you can use whatever you like
 3. Connecting Python to the V-REP simulator are is a onetime process that you will have to do before you can run the provided Python code
