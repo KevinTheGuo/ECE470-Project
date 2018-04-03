@@ -16,7 +16,7 @@ from time import sleep
 import vrep
 import inverse_kinematics
 import quaternion
-
+import collision_detection
 
 import time
 
@@ -39,27 +39,45 @@ if clientID != -1:
         errorCode, handle = vrep.simxGetObjectHandle(clientID, joint_name, vrep.simx_opmode_oneshot_wait)
         joint_handles.append(handle)
 
+    # Get a handle for the movable inverse kinematics dummy
     errorCode, movable_dummy_handle = vrep.simxGetObjectHandle(clientID, "Dummy", vrep.simx_opmode_oneshot_wait)
 
-    prev_dummy_pos = None
-    prev_dummy_quaternion = None
+    # Get handles for all the movable collision detection dummies
+    errorCode, movable_dummy_handle1 = vrep.simxGetObjectHandle(clientID, "Dummy1", vrep.simx_opmode_oneshot_wait)
+    errorCode, movable_dummy_handle2 = vrep.simxGetObjectHandle(clientID, "Dummy2", vrep.simx_opmode_oneshot_wait)
+    errorCode, movable_dummy_handle3 = vrep.simxGetObjectHandle(clientID, "Dummy3", vrep.simx_opmode_oneshot_wait)
+    errorCode, movable_dummy_handle4 = vrep.simxGetObjectHandle(clientID, "Dummy4", vrep.simx_opmode_oneshot_wait)
+    errorCode, movable_dummy_handle5 = vrep.simxGetObjectHandle(clientID, "Dummy5", vrep.simx_opmode_oneshot_wait)
 
+    # Create bounding volume dummies for the joints
+    errorCode, bounding_vol1_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+    errorCode, bounding_vol2_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+    errorCode, bounding_vol3_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+    errorCode, bounding_vol4_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+    errorCode, bounding_vol5_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+    errorCode, bounding_vol6_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+    errorCode, bounding_vol7_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+
+    # Initialize variable which let us check if the dummy has been moved
+    prev_dummy_pos = None
 
     try:
         while True:
             errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], -1, vrep.simx_opmode_oneshot_wait)
-            print("Initial end effector position:", pos)
+            #print("Initial end effector position:", pos)
 
             # input("Press any key to move robot to desired location")
 
             # Get the desired pose by checking the pose of the user-movable dummy
             errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
-            print("Dummy pos: {}".format(dummy_pos))
+            #print("Dummy pos: {}".format(dummy_pos))
             errorCode, dummy_quaternion = vrep.simxGetObjectQuaternion(clientID, movable_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
-            print("Dummy qua: {}".format(dummy_quaternion))
+            #print("Dummy qua: {}".format(dummy_quaternion))
 
-            if (dummy_pos == prev_dummy_pos) and (dummy_quaternion == dummy_quaternion):
-                pass
+            # Make sure we don't recalculate if the inverse kinematics dummy is still in the same position
+            if (dummy_pos == prev_dummy_pos):
+                continue
+            prev_dummy_pos = dummy_pos
 
             # Mush the quaternion and pos into a pose matrix!
             # Our function takes care of the V-REP quaternion mismatch
@@ -77,29 +95,74 @@ if clientID != -1:
                 for i in range(7):              # Set the position of each joint
                     vrep.simxSetJointTargetPosition(clientID, joint_handles[i], theta_list[i], vrep.simx_opmode_oneshot_wait)
                     # print("Setting joint", i+1, "to", theta_list[i])
-                    sleep(0.5)
+                    sleep(0.25)
 
             # Grab the actual pose
-            errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], joint_handles[0],
-                                                        vrep.simx_opmode_oneshot_wait)
-            errorCode, angles = vrep.simxGetObjectQuaternion(clientID, joint_handles[6], joint_handles[0],
-                                                             vrep.simx_opmode_oneshot_wait)
+            errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], joint_handles[0], vrep.simx_opmode_oneshot_wait)
+            errorCode, angles = vrep.simxGetObjectQuaternion(clientID, joint_handles[6], joint_handles[0], vrep.simx_opmode_oneshot_wait)
             print("Actual pos:", pos)
             print("Actual qua:", angles)
 
+            # Print each joint's angle
             for i in range(7):
                 theta = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
                 print("Theta", i, "is", theta)
+
+            # Attach each dummy bounding volume to each joint of the robot
+            vrep.simxSetObjectPosition(clientID, bounding_vol1_handle, joint_handles[0], (0,0,0), vrep.simx_opmode_oneshot_wait)
+            vrep.simxSetObjectPosition(clientID, bounding_vol2_handle, joint_handles[1], (0,0,0), vrep.simx_opmode_oneshot_wait)
+            vrep.simxSetObjectPosition(clientID, bounding_vol3_handle, joint_handles[2], (0,0,0), vrep.simx_opmode_oneshot_wait)
+            vrep.simxSetObjectPosition(clientID, bounding_vol4_handle, joint_handles[3], (0,0,0), vrep.simx_opmode_oneshot_wait)
+            vrep.simxSetObjectPosition(clientID, bounding_vol5_handle, joint_handles[4], (0,0,0), vrep.simx_opmode_oneshot_wait)
+            vrep.simxSetObjectPosition(clientID, bounding_vol6_handle, joint_handles[5], (0,0,0), vrep.simx_opmode_oneshot_wait)
+            vrep.simxSetObjectPosition(clientID, bounding_vol7_handle, joint_handles[6], (0,0,0), vrep.simx_opmode_oneshot_wait)
+
+            # Run self-collision detection for the robot
+            collision_detected = False
+            for i in range(7):
+                errorCode, pos_i = vrep.simxGetObjectPosition(clientID, joint_handles[i], -1, vrep.simx_opmode_oneshot_wait)
+                for j in range(i+1,7):
+                    errorCode, pos_j = vrep.simxGetObjectPosition(clientID, joint_handles[i], -1, vrep.simx_opmode_oneshot_wait)
+                    if (collision_detection.collision_wrapper(pos_i, pos_j)):
+                        print("Robot joint {} collides with robot joint {}".format(i,j))
+                        collision_detected = True
+
+            # Run self-collision detection between the robot and the environment sheres
+            dummy_pos_list = [0,0,0,0,0]
+            errorCode, dummy_pos_list[0] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle1, -1, vrep.simx_opmode_oneshot_wait)
+            errorCode, dummy_pos_list[1] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle2, -1, vrep.simx_opmode_oneshot_wait)
+            errorCode, dummy_pos_list[2] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle3, -1, vrep.simx_opmode_oneshot_wait)
+            errorCode, dummy_pos_list[3] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle4, -1, vrep.simx_opmode_oneshot_wait)
+            errorCode, dummy_pos_list[4] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle5, -1, vrep.simx_opmode_oneshot_wait)
+            for i in range(7):
+                errorCode, pos_i = vrep.simxGetObjectPosition(clientID, joint_handles[i], -1, vrep.simx_opmode_oneshot_wait)
+                for j in range(5):
+                    if (collision_detection.collision_wrapper(pos_i, dummy_pos_list[j])):
+                        print("Robot joint {} collides with object {}!".format(i,j))
+                        print("Joint pos: {} Object pos: {}".format(pos_i, dummy_pos_list[j]))
+                        collision_detected = True
+
+            if not collision_detected:
+                print("No collisions detected!")
+
     except KeyboardInterrupt:
         input("Press any key to revert to origin...")
         print("")
+
+        # Remove all the dummy bounding volumes
+        vrep.simxRemoveObject(clientID,bounding_vol1_handle,vrep.simx_opmode_oneshot_wait)
+        vrep.simxRemoveObject(clientID,bounding_vol2_handle,vrep.simx_opmode_oneshot_wait)
+        vrep.simxRemoveObject(clientID,bounding_vol3_handle,vrep.simx_opmode_oneshot_wait)
+        vrep.simxRemoveObject(clientID,bounding_vol4_handle,vrep.simx_opmode_oneshot_wait)
+        vrep.simxRemoveObject(clientID,bounding_vol5_handle,vrep.simx_opmode_oneshot_wait)
+        vrep.simxRemoveObject(clientID,bounding_vol6_handle,vrep.simx_opmode_oneshot_wait)
+        vrep.simxRemoveObject(clientID,bounding_vol7_handle,vrep.simx_opmode_oneshot_wait)
 
         for i in range(7):
             vrep.simxSetJointTargetPosition(clientID, joint_handles[i], 0, vrep.simx_opmode_oneshot_wait)
             print("Setting joint", i + 1, "back to 0")
 
     sleep(0.5)
-
 
     # Now close the connection to V-REP:
     vrep.simxFinish(clientID)
