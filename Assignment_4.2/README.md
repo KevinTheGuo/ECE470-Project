@@ -8,7 +8,7 @@
 4. There is an excellent video that you can use to achieve this that explains it much better than any README file could. [Link to video.](https://www.youtube.com/watch?v=SQont-mTnfM)
 5. With that, here are some things to look out for when following the instructions in the video
     a. Make sure you have the right version of V-REP installed. We used educational version. If you have the player version installed then you will not be successful.
-    b. Make sure you have the right version of Python installed. We use Python 3 and there may be potential incompatibilities using Python 2  
+    b. Make sure you have the right version of Python installed. We use Python 3 and there may be potential incompatibilities using Python 2
 
 ## 2. Calculating
 The schematics for the KUKA robot are available [in this PDF](https://www.kuka.com/-/media/kuka-downloads/imported/48ec812b1b2947898ac2598aff70abc0/spez_kr_15_sl_en.pdf).
