@@ -95,9 +95,9 @@ def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=50):
         theta = theta + thetadot
 
         # 6: Repeat until we are below cutoff
-        print("Distance is {}".format(np.linalg.norm(V)))
+#        print("Distance is {}".format(np.linalg.norm(V)))
         if(np.linalg.norm(V) < 0.01):
-            print("\nDing!... Your answer is ready!\n")
+#            print("\nDing!... Your answer is ready!\n")
             print(repr(theta))
             return(theta)
 
