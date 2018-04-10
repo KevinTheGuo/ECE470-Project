@@ -1,4 +1,4 @@
-# Week Three: Demonstrating Inverse Kinematics
+# Week Four: Demonstrating Collision Checking
 
 ## 1. Connecting Python to V-REP
 ### These are the same initial steps as the past weeks'
