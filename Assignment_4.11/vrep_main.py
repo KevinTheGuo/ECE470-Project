@@ -44,11 +44,13 @@ if clientID != -1:
     errorCode, target_dummy_handle = vrep.simxGetObjectHandle(clientID, "TargetDummy", vrep.simx_opmode_oneshot_wait)
 
     # Get handles for all the movable collision detection dummies
-    errorCode, obstacle_dummy_handle2 = vrep.simxGetObjectHandle(clientID, "ObstacleDummy2", vrep.simx_opmode_oneshot_wait)
-    errorCode, obstacle_dummy_handle3 = vrep.simxGetObjectHandle(clientID, "ObstacleDummy3", vrep.simx_opmode_oneshot_wait)
-    errorCode, obstacle_dummy_handle4 = vrep.simxGetObjectHandle(clientID, "ObstacleDummy4", vrep.simx_opmode_oneshot_wait)
-    errorCode, obstacle_dummy_handle5 = vrep.simxGetObjectHandle(clientID, "ObstacleDummy5", vrep.simx_opmode_oneshot_wait)
-    errorCode, obstacle_dummy_handle1 = vrep.simxGetObjectHandle(clientID, "ObstacleDummy1", vrep.simx_opmode_oneshot_wait)
+    # Set number of obstacles
+    NUM_OBSTACLES = 5
+
+    dummy_obstacle_handles = []
+    for i in range(0, NUM_OBSTACLES):
+        dummy_name = 'ObstacleDummy' + str(i + 1)
+        errorCode, dummy_obstacle_handles[i] = vrep.simxGetObjectHandle(clientID, dummy_name, vrep.simx_opmode_oneshot_wait)
 
     # Create bounding volume dummies for the joints
     BOUNDING_VOL_RADIUS = 0.15
@@ -78,7 +80,7 @@ if clientID != -1:
             pose[2,3] = dummy_pos[2]
             print("Desired Pose: \n{}".format(pose))
 
-            # Get theta start
+            # Get theta start (current thetas of robot joints)
             theta_start = np.zeros((7,1))
             for i in range(7):
                 theta[i] = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
@@ -87,70 +89,42 @@ if clientID != -1:
             theta_goal = inverse_kinematics.inverse_kinematics(pose)
             print("Theta goal: {}".format(theta_goal))
 
-            # Get p_robot (position of each robot's joint)
-            p_robot = np.zeros((7,1))
-            for i in range(7):
+            # Get p_robot (position of each robot's collision spheres)
+            p_robot = np.zeros((3,8))
+            for i in range(1,8):
+                p_robot[0:3,i] = vrep.simxGetObjectPosition(clientID, joint_handles[i], -1, vrep.simx_opmode_oneshot_wait)
 
+            # Get r_robot (radius of robot's joints)
+            r_robot = np.zeros((1,8)).fill(BOUNDING_VOL_RADIUS)
+            r_robot[0,7] = END_RADIUS
 
+            # Get p_obstacle (position of external obstacles)
+            p_obstacle = np.zeros((3,NUM_OBSTACLES))
+            for i in range(0, NUM_OBSTACLES):
+                p_obstacle[:,i] = vrep.simxGetObjectPosition(clientID, dummy_obstacle_handles[i], -1, vrep.simx_opmode_oneshot_wait)
 
-            if theta_goal is not None:
-                print("Moving robot")
-                for i in range(7):              # Set the position of each joint
-                    vrep.simxSetJointPosition(clientID, joint_handles[i], theta_goal[i], vrep.simx_opmode_oneshot_wait)
-                    # print("Setting joint", i+1, "to", theta_goal[i])
-                    sleep(0.25)
+            # Get r_obstacle (radius of each external obstacle)
+            r_obstacle = np.zeros((1,NUM_OBSTACLES)).fill(BOUNDING_VOL_RADIUS)
 
-            # Grab the actual pose
-            errorCode, pos = vrep.simxGetObjectPosition(clientID, joint_handles[6], joint_handles[0], vrep.simx_opmode_oneshot_wait)
-            errorCode, angles = vrep.simxGetObjectQuaternion(clientID, joint_handles[6], joint_handles[0], vrep.simx_opmode_oneshot_wait)
-            print("Actual pos:", pos)
-            print("Actual qua:", angles)
+            # Plan a path!
+            max_iterations = 420
+            final_path = path_planner.plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, max_iterations)
 
-            # Print each joint's angle
-            for i in range(7):
-                theta = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
-                print("Theta", i, "is", theta)
-
-            # Run self-collision detection for the robot
-            collision_detected = False
-            for i in range(7):
-                errorCode, pos_i = vrep.simxGetObjectPosition(clientID, joint_handles[i], -1, vrep.simx_opmode_oneshot_wait)
-                for j in range(i+1,7):
-                    errorCode, pos_j = vrep.simxGetObjectPosition(clientID, joint_handles[j], -1, vrep.simx_opmode_oneshot_wait)
-                    RADIUS_I = BOUNDING_VOL_RADIUS/2
-                    RADIUS_J = BOUNDING_VOL_RADIUS/2
-                    if i == 6:
-                        RADIUS_I = END_RADIUS/2
-                    if j == 6:
-                        RADIUS_J = END_RADIUS/2
-
-                    if (collision_detection.check_collision(pos_i, RADIUS_I, pos_j, RADIUS_J)):
-                        print("Robot joint {} collides with robot joint {}".format(i,j))
-                        print("Joint{} pos: {} Joint{} pos: {}".format(i, pos_i, j, pos_j))
-                        collision_detected = True
-
-            # Run self-collision detection between the robot and the environment spheres
-            dummy_pos_list = [0,0,0,0,0]
-            errorCode, dummy_pos_list[0] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle1, -1, vrep.simx_opmode_oneshot_wait)
-            errorCode, dummy_pos_list[1] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle2, -1, vrep.simx_opmode_oneshot_wait)
-            errorCode, dummy_pos_list[2] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle3, -1, vrep.simx_opmode_oneshot_wait)
-            errorCode, dummy_pos_list[3] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle4, -1, vrep.simx_opmode_oneshot_wait)
-            errorCode, dummy_pos_list[4] = vrep.simxGetObjectPosition(clientID, movable_dummy_handle5, -1, vrep.simx_opmode_oneshot_wait)
-            for i in range(7):
-                errorCode, pos_i = vrep.simxGetObjectPosition(clientID, joint_handles[i], -1, vrep.simx_opmode_oneshot_wait)
-                for j in range(5):
-                    if (collision_detection.check_collision(pos_i, BOUNDING_VOL_RADIUS/2, dummy_pos_list[j], BOUNDING_VOL_RADIUS/2)):
-                        print("Robot joint {} collides with object {}!".format(i,j))
-                        print("Joint pos: {} Object pos: {}".format(pos_i, dummy_pos_list[j]))
-                        collision_detected = True
-
-            if not collision_detected:
-                print("No collisions detected!")
+            # If we generated a valid path, iterate through it and move our robot!
+            print(len(final_path[0]))
+            if final_path is not False:
+                print("Moving robot to goal theta!")
+                for i in range(len(final_path[0])):   # Iterate through each point in our path
+                    print("Waypoint {}".format(i))
+                    for j in range(7):                     # Iterate through every joint on our robot
+                        vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j:i], vrep.simx_opmode_oneshot_wait)
+                        sleep(0.025)
+            else:
+                print("Viable path not found in {} iterations".formatmax_iterations())
 
     except KeyboardInterrupt:
         for i in range(7):
             vrep.simxSetJointPosition(clientID, joint_handles[i], 0, vrep.simx_opmode_oneshot_wait)
-            print("Setting joint", i + 1, "back to 0")
 
     sleep(0.5)
 
