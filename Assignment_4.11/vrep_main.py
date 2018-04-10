@@ -17,6 +17,7 @@ import vrep
 import inverse_kinematics
 import quaternion
 import collision_detection
+import path_planner
 
 import time
 

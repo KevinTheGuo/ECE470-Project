@@ -4,7 +4,7 @@ from numpy.linalg import inv, norm
 from scipy.linalg import expm, logm
 
 # Defined radius for all collision detection. Units are meters
-RADIUS = 0.015
+RADIUS = 0.05
 
 # Calculate the distance between two coordinates in space
 def calc_distance(p_1, p_2):
