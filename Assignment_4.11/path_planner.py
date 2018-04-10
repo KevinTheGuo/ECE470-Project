@@ -53,6 +53,9 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
         # 0. Increment our iterations
         iterations += 1
         print(iterations)
+        if (iterations > max_iterations):
+            print("ERROR: Exceeded max iterations")
+            return False
 
         # 1. Create a random point in configuration-space, and see if it results in immediate collision
         curr_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
@@ -88,6 +91,7 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
 
         # 5. We've found a viable path if we added the same node to both trees!
         if (start_tree[-1].value.all == goal_tree[-1].value.all):
+            print("Found viable path!")
 
             # First, add the central node
             final_path[0:ROBOT_NUM_JOINTS,0:1] = start_tree[-1].value
@@ -106,10 +110,6 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
 
             # And now we should have our final path! Let's break.
             break
-
-        if (iterations > max_iterations):
-            print("ERROR: Exceeded max iterations")
-            return False
 
     print("Your final path is \n{}".format(repr(final_path)))
     return final_path
