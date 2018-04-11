@@ -19,7 +19,6 @@ import quaternion
 import collision_detection
 import path_planner
 
-import time
 
 print ('KUKA MOVER started')
 vrep.simxFinish(-1)  # just in case, close all opened connections
@@ -27,16 +26,10 @@ clientID = vrep.simxStart('127.0.0.1', 19999, True, True, 5000, 5)  # Connect to
 if clientID != -1:
     print ('Connected to KUKA Simulator')
 
-    # Get the ID of the user-movable dummy to indicate desired position
-    movable_dummy_handle = 420
-
-    # Initial thetas:       1    2     3    4     5    6     7
-    theta_goal = np.array([1.0, 1.57, 1.0, 1.57, 0.0, 1.57, 0.0])
-
     # Loop through all the robot's joints and get unique ID's for each
     joint_handles = []
-    for i in range(7):
-        joint_name = 'LBR_iiwa_7_R800_joint' + str(i + 1)
+    for i in range(1, 8):
+        joint_name = 'LBR_iiwa_7_R800_joint' + str(i)
         errorCode, handle = vrep.simxGetObjectHandle(clientID, joint_name, vrep.simx_opmode_oneshot_wait)
         joint_handles.append(handle)
 
@@ -48,8 +41,8 @@ if clientID != -1:
     NUM_OBSTACLES = 5
 
     dummy_obstacle_handles = []
-    for i in range(0, NUM_OBSTACLES):
-        dummy_name = 'Dummy' + str(i + 1)
+    for i in range(1, NUM_OBSTACLES + 1):
+        dummy_name = 'Dummy' + str(i)
         errorCode, handle = vrep.simxGetObjectHandle(clientID, dummy_name, vrep.simx_opmode_oneshot_wait)
         dummy_obstacle_handles.append(handle)
 
@@ -84,8 +77,9 @@ if clientID != -1:
             # Get theta start (current thetas of robot joints)
             theta_start = np.zeros((7,1))
             for i in range(7):
-                print (vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait))
-                theta_start[i] = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)[1]
+                errorCode, jointPos = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
+                print("Joint ", i, " pos: ", jointPos)
+                theta_start[i] = jointPos
 
             # Get theta goal
             theta_goal = inverse_kinematics.inverse_kinematics(pose)
@@ -93,8 +87,10 @@ if clientID != -1:
 
             # Get p_robot (position of each robot's collision spheres)
             p_robot = np.zeros((3,8))
-            for i in range(1,8):
-                p_robot[0:3,i] = vrep.simxGetObjectPosition(clientID, joint_handles[i-1], -1, vrep.simx_opmode_oneshot_wait)[1]
+            for i in range(7):
+                errorCode, robotSpherePos = vrep.simxGetObjectPosition(clientID, joint_handles[i], -1, vrep.simx_opmode_oneshot_wait)
+                p_robot[0:3, i+1] = robotSpherePos
+                print("P_Robot ", i, " is: ", p_robot[:, i+1])
 
             # Get r_robot (radius of robot's joints)
             r_robot = np.zeros((1,8))
