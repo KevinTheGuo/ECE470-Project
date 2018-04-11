@@ -49,7 +49,7 @@ def check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, curr_thet
         for j in range(i+1, NUM_ROBOT_SPHERES):
             if check_collision(curr_p_robot[0:3,i:i+1], r_robot[0][i], curr_p_robot[0:3,j:j+1], r_robot[0][j]):
                 print("Robot Spheres {} and {} collide".format(i,j))
-                print("Their positions are {} and {}".format(curr_p_robot[0:3,i:i+1],curr_p_robot[0:3,j:j+1]))
+                print("Their positions are \n{} and \n{}".format(curr_p_robot[0:3,i:i+1],curr_p_robot[0:3,j:j+1]))
                 print("Their radii are {} and {}".format(r_robot[0][i],r_robot[0][j]))
                 print("Their distance is {}".format(calc_distance(curr_p_robot[0:3,i:i+1],curr_p_robot[0:3,j:j+1])))
                 return True
@@ -59,6 +59,9 @@ def check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, curr_thet
         for j in range(NUM_OBSTACLE_SPHERES):
             if check_collision(curr_p_robot[0:3,i:i+1], r_robot[0][i], p_obstacle[0:3,j:j+1], r_obstacle[0][j]):
                 print("Robot Sphere {} collides with obstacle {}".format(i,j))
+                print("Their positions are \n{} and \n{}".format(curr_p_robot[0:3,i:i+1],p_obstacle[0:3,j:j+1]))
+                print("Their radii are {} and {}".format(r_robot[0][i],r_obstacle[0][j]))
+                print("Their distance is {}".format(calc_distance(curr_p_robot[0:3,i:i+1],p_obstacle[0:3,j:j+1])))
                 return True
 
     # Return false otherwise

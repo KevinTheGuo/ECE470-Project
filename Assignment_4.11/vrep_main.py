@@ -98,7 +98,7 @@ if clientID != -1:
 
             # Get r_robot (radius of robot's joints)
             r_robot = np.zeros((1,8))
-            r_robot.fill(0.05)
+            r_robot.fill(0.08)
             r_robot[0,0] = 0.01
             r_robot[0,7] = 0.01
 
