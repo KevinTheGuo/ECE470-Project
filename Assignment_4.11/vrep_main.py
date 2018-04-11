@@ -68,7 +68,7 @@ if clientID != -1:
 
             # Mush the quaternion and pos into a pose matrix!
             # Our function takes care of the V-REP quaternion mismatch
-            pose = quaternion.matrix_from_quaternion(dummy_quaternion)
+            pose = quaternion.matrix_from_quaternion(dummy_quaternion)  # This function fills in only [0:3,0:3] (orientation) so we have to fill in the last part ourselves
             pose[0,3] = dummy_pos[0]
             pose[1,3] = dummy_pos[1]
             pose[2,3] = dummy_pos[2]
