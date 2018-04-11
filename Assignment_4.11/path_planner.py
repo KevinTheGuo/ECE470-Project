@@ -87,7 +87,7 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
                 closest_index = index
         if (collision_detection.check_path_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, curr_theta, goal_tree[closest_index].value) == 0):
             goal_tree.append(Tree_Node(curr_theta, closest_index))
-            print("appended to goal tree: \n{}".format(repr(curr_theta)))
+            # print("appended to goal tree: \n{}".format(repr(curr_theta)))
 
         # 5. We've found a viable path if we added the same node to both trees!
         if (start_tree[-1].value.all == goal_tree[-1].value.all):
