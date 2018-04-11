@@ -110,14 +110,14 @@ if clientID != -1:
             r_obstacle.fill(BOUNDING_VOL_RADIUS)
 
             # TESTING STUFF
-            S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
-            while(True):
-                input("Swag")
-                rand_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
-                print("Collision? {}".format(collision_detection.check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, rand_theta)))
-                print(rand_theta)
-                for j in range(7):                     # Iterate through every joint on our robot
-                    vrep.simxSetJointPosition(clientID, joint_handles[j], rand_theta[j], vrep.simx_opmode_oneshot_wait)
+            # S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
+            # while(True):
+            #     input("Swag")
+            #     rand_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
+            #     print("Collision? {}".format(collision_detection.check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, rand_theta)))
+            #     print(rand_theta)
+            #     for j in range(7):                     # Iterate through every joint on our robot
+            #         vrep.simxSetJointPosition(clientID, joint_handles[j], rand_theta[j], vrep.simx_opmode_oneshot_wait)
 
 
             # Plan a path!
@@ -135,12 +135,13 @@ if clientID != -1:
 
                 # If we generated a valid path, iterate through it and move our robot!
                 if final_path is not False:
-                    print(len(final_path[0]))
+                    # print(len(final_path[0]))
                     print("Moving robot to goal theta!")
                     for i in range(len(final_path[0])):   # Iterate through each point in our path
                         print("Waypoint {}".format(i))
                         for j in range(7):                     # Iterate through every joint on our robot
-                            vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j:i], vrep.simx_opmode_oneshot_wait)
+                            print(final_path[j,i])
+                            vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j,i], vrep.simx_opmode_oneshot_wait)
                             sleep(0.025)
                 else:
                     print("Viable path not found in {} iterations".format(max_iterations()))
