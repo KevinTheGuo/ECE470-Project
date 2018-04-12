@@ -27,6 +27,8 @@ clientID = vrep.simxStart('127.0.0.1', 19999, True, True, 5000, 5)  # Connect to
 if clientID != -1:
     print ('Connected to KUKA Simulator')
 
+    p_obstacle_list = []
+
     # Loop through all the robot's joints and get unique ID's for each
     joint_handles = []
     for i in range(1, 8):
@@ -42,23 +44,31 @@ if clientID != -1:
     for joint in range(7):
         # Make a Dummy for each joint
         if joint == 5:
-            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, None, vrep.simx_opmode_oneshot_wait)
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [125,125,125], vrep.simx_opmode_oneshot_wait)
         elif joint == 6:
-            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.08, None, vrep.simx_opmode_oneshot_wait)
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.08, [125,125,125], vrep.simx_opmode_oneshot_wait)
         else:
-            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.15, [125,125,125], vrep.simx_opmode_oneshot_wait)
         robot_joint_bounding_handles.append(bounding_handle)
-        vrep.simxSetObjectParent(clientID,robot_joint_bounding_handles[joint],joint_handles[joint],False,vrep.simx_opmode_oneshot_wait)
+        vrep.simxSetObjectParent(clientID, robot_joint_bounding_handles[joint], joint_handles[joint], False, vrep.simx_opmode_oneshot_wait)
 
-    # Get handles for all the movable collision detection dummies
-    # Set number of obstacles
-    NUM_OBSTACLES = 5
+    # Kevin
+    print("Building wall!")
+    wall_handles = []
+    for z_pos in range(1, 12, 2):
+        for x_pos in range(-10, 10, 2):
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
+            wall_handles.append(bounding_handle)
+            vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05 * x_pos, 0.2 , 0.05 * z_pos],vrep.simx_opmode_oneshot_wait)
 
-    dummy_obstacle_handles = []
-    for i in range(1, NUM_OBSTACLES + 1):
-        dummy_name = 'Dummy' + str(i)
-        errorCode, handle = vrep.simxGetObjectHandle(clientID, dummy_name, vrep.simx_opmode_oneshot_wait)
-        dummy_obstacle_handles.append(handle)
+    for i in range(len(wall_handles)):
+        errorCode, sphere_pos = vrep.simxGetObjectPosition(clientID, wall_handles[i], -1, vrep.simx_opmode_oneshot_wait)
+        p_obstacle_list.append(sphere_pos)
+
+    # Create NUMPY array from wall sphere list
+    p_obstacle = np.array(p_obstacle_list)
+    p_obstacle = np.transpose(p_obstacle)
+    print(repr(p_obstacle))
 
     # Create bounding volume dummies for the joints
     BOUNDING_VOL_RADIUS = 0.15
@@ -74,9 +84,7 @@ if clientID != -1:
 
             # Get the desired pose by checking the pose of the user-movable dummy
             errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, target_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
-            #print("Dummy pos: {}".format(dummy_pos))
             errorCode, dummy_quaternion = vrep.simxGetObjectQuaternion(clientID, target_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
-            #print("Dummy qua: {}".format(dummy_quaternion))
 
             # Make sure we don't recalculate if the inverse kinematics dummy is still in the same position
             if (dummy_pos == prev_dummy_pos):
@@ -116,15 +124,8 @@ if clientID != -1:
             r_robot[0,6] = 0.03
             r_robot[0,7] = 0.02
 
-            # Get p_obstacle (position of external obstacles)
-            print(joint_handles)
-            print(dummy_obstacle_handles)
-            p_obstacle = np.zeros((3,NUM_OBSTACLES))
-            for i in range(0, NUM_OBSTACLES):
-                p_obstacle[:,i] = vrep.simxGetObjectPosition(clientID, dummy_obstacle_handles[i], -1, vrep.simx_opmode_oneshot_wait)[1]
-
             # Get r_obstacle (radius of each external obstacle)
-            r_obstacle = np.zeros((1,NUM_OBSTACLES))
+            r_obstacle = np.zeros((1,len(wall_handles)))
             r_obstacle.fill(BOUNDING_VOL_RADIUS)
 
             # Plan a path!
@@ -134,18 +135,6 @@ if clientID != -1:
             # print("r_robot: \n{}".format(r_robot))
             # print("p_obstacle: \n{}".format(p_obstacle))
             # print("r_obstacle: \n{}".format(r_obstacle))
-
-            # TESTING STUFF
-            # S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
-            # while(True):
-            #     input("Swag")
-            #     rand_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
-            #     print("Collision? {}".format(collision_detection.check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, rand_theta)))
-            #     print(rand_theta)
-            #     print("Forward Kinematics: \n{}".format(forward_kinematics.forwardKinematics(rand_theta)))
-            #     # Also maybe want to getjointposition and print out the actual thetas?
-            #     for j in range(7):                     # Iterate through every joint on our robot
-            #         vrep.simxSetJointPosition(clientID, joint_handles[j], rand_theta[j], vrep.simx_opmode_oneshot_wait)
 
             # Make sure that we have a valid theta goal
             if (theta_goal is not None):
@@ -164,7 +153,7 @@ if clientID != -1:
                             sleep(0.1)
                         sleep(0.5)
                 else:
-                    print("Viable path not found in {} iterations".format(max_iterations()))
+                    print("Viable path not found in {} iterations".format(max_iterations))
 
                 # Clean up plan_my_path's dumpster of a mess
                 for handle in dummy_handle_list:
@@ -174,7 +163,10 @@ if clientID != -1:
         pass
 
     sleep(0.5)
-
+    
+    # tear down the wall_handles
+    for i in range(len(wall_handles)):
+        vrep.simxRemoveObject(clientID,wall_handles[i],vrep.simx_opmode_oneshot_wait)
     # Now close the connection to V-REP:
     vrep.simxFinish(clientID)
 else:
