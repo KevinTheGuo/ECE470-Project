@@ -154,14 +154,9 @@ if clientID != -1:
                     print(final_path)
                     for i in range(len(final_path[0])):   # Iterate through each point in our path
                         print("Waypoint {}".format(i))
-                        print(final_path[0:6,i])
-                        theta_goal = np.zeros((6,1))
-                        theta_goal = final_path[0:6,i]
+                        theta_goal = np.zeros((7,1))
+                        theta_goal = final_path[0:7,i:i+1]
                         path_planner.gimme_them_smooth_moves(clientID, joint_handles, theta_goal)
-                        # for j in range(7):                     # Iterate through every joint on our robot
-                        #     print(final_path[j,i])
-                        #     vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j,i], vrep.simx_opmode_oneshot_wait)
-                        # sleep(0.5)
                 else:
                     print("Viable path not found in {} iterations".format(max_iterations))
 
