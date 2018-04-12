@@ -51,8 +51,6 @@ if clientID != -1:
 
     # Kevin
     wall_handles = []
-    wall_rows = 3
-    wall_cols = 3
     for z_pos in range(1, 12, 2):
         for x_pos in range(-10, 10, 2):
             errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
@@ -63,7 +61,7 @@ if clientID != -1:
     # Set number of obstacles
     NUM_OBSTACLES = 5
 
-    dummy_obstacle_handles = []
+        dummy_obstacle_handles = []
     for i in range(1, NUM_OBSTACLES + 1):
         dummy_name = 'Dummy' + str(i)
         errorCode, handle = vrep.simxGetObjectHandle(clientID, dummy_name, vrep.simx_opmode_oneshot_wait)
@@ -183,7 +181,10 @@ if clientID != -1:
         pass
 
     sleep(0.5)
-
+    
+    # tear down the wall_handles
+    for i in range(len(wall_handles)):
+        vrep.simxRemoveObject(clientID,wall_handles[i],vrep.simx_opmode_oneshot_wait)
     # Now close the connection to V-REP:
     vrep.simxFinish(clientID)
 else:
