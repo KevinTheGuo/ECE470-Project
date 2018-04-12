@@ -83,6 +83,8 @@ def check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, curr_thet
 
     # Properties of our system
     NUM_ROBOT_SPHERES = len(p_robot[0])
+    print("NUM ROBOT SPHERES IS {}".format(NUM_ROBOT_SPHERES))
+    print("LEN S IS {}".format(len(S[0])))
     NUM_OBSTACLE_SPHERES = len(p_obstacle[0])
 
     # Check for robot self-collision

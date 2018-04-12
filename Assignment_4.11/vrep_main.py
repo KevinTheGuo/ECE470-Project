@@ -14,6 +14,7 @@ import numpy as np
 from time import sleep
 
 import vrep
+import forward_kinematics
 import inverse_kinematics
 import quaternion
 import collision_detection
@@ -124,17 +125,6 @@ if clientID != -1:
             r_obstacle = np.zeros((1,NUM_OBSTACLES))
             r_obstacle.fill(BOUNDING_VOL_RADIUS)
 
-            # TESTING STUFF
-            # S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
-            # while(True):
-            #     input("Swag")
-            #     rand_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
-            #     print("Collision? {}".format(collision_detection.check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, rand_theta)))
-            #     print(rand_theta)
-            #     for j in range(7):                     # Iterate through every joint on our robot
-            #         vrep.simxSetJointPosition(clientID, joint_handles[j], rand_theta[j], vrep.simx_opmode_oneshot_wait)
-
-
             # Plan a path!
             print("theta_start: \n{}".format(theta_start))
             print("theta_goal: \n{}".format(theta_goal))
@@ -142,6 +132,18 @@ if clientID != -1:
             print("r_robot: \n{}".format(r_robot))
             print("p_obstacle: \n{}".format(p_obstacle))
             print("r_obstacle: \n{}".format(r_obstacle))
+
+            # TESTING STUFF
+            S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
+            while(True):
+                input("Swag")
+                rand_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
+                print("Collision? {}".format(collision_detection.check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, rand_theta)))
+                print(rand_theta)
+                print("Forward Kinematics: \n{}".format(forward_kinematics.forwardKinematics(rand_theta)))
+                # Also maybe want to getjointposition and print out the actual thetas?
+                for j in range(7):                     # Iterate through every joint on our robot
+                    vrep.simxSetJointPosition(clientID, joint_handles[j], rand_theta[j], vrep.simx_opmode_oneshot_wait)
 
             # Make sure that we have a valid theta goal
             if (theta_goal is not None):
