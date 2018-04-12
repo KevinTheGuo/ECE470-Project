@@ -1,15 +1,17 @@
 # File which has the path-planning functions, making heavy use of collision_detection.py
+import vrep
 import numpy as np
 from numpy.linalg import inv, norm
 from scipy.linalg import expm, logm
 import collision_detection
+import forward_kinematics
+
 
 # Create a class to help us implement trees
 class Tree_Node:
     def __init__(self, value, parent_index):
         self.value = value
         self.parent_index = parent_index
-
 
 # Plan My Path
 # For a given robot, environment, desired theta, and current theta, return a set of
@@ -21,18 +23,16 @@ class Tree_Node:
 #        r_obstacle- radius of each obstacle
 #        theta_start- current theta of each joint of robot
 #        theta_goal- desired theta of each joint of robot
+#        clientID- needed to interact with VREP
+#        base_joint_handle- base reference needed to display dummies properly
 # OUTPUT: final_path- if valid path found, array of intermediate theta positions for each joint.
 #                     if valid path not found, return False
-def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, max_iterations):
+#         dummy_handle_list- this is really sketchy. because we want our generated dummy handles to stay
+#                            while the robot is moving, we're passing this back to the vrep_main.py instead of
+#                            deleting the dummies ourselves, and relying on vrep_main to clean up our dummies.
+def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, max_iterations, clientID, base_joint_handle):
     # The Kuka robot's predefined S
     S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
-
-    # p_robot = np.array([[ 0,  0,  0,  0,  0,  0], [ 0, -2, -2,  2,  2,  4], [ 0,  0, -2, -2, -4, -4]])
-    # r_robot = np.array([[0.90, 0.90, 0.90, 0.90, 0.90, 0.90]])
-    # p_obstacle = np.array([[4.56, 2.59, -0.97, -0.67, 3.34, -0.59, 4.25, 3.28, 2.41, 4.38, -0.38,  0.11, 3.61, 4.95, 2.23, -1.51, 3.44, 0.85, 2.14, -1.99, -1.58, -1.66,  3.82], [0.28, -1.86, 4.78, 2.83, 0.18, 4.79, 1.55, 2.73, 0.03, 2.86, 1.92, 1.65,  -4.42, 2.70, 3.44, 1.72, -4.08, -4.97, -0.44, 1.42, 3.45, 2.85, -0.20], [5.00, -4.53, 1.55, 1.05, -4.33, -3.10, -3.04, 4.27, 4.47, 3.68, 3.82,  -2.95, 4.49, 3.60, 3.59, -3.75, 4.42, 1.93, 1.56, 2.73, 3.08, -4.56,  -1.01]])
-    # r_obstacle = np.array([[4.38, 1.07, 2.52, 1.78, 1.63, 0.60, 0.58, 3.54, 0.89, 2.32, 2.58, 2.03,  0.83, 2.62, 1.78, 2.14, 2.65, 2.19, 1.07, 2.45, 3.82, 1.67, 1.94]])
-    # theta_start = np.array([[-1.34], [-0.27], [3.07], [1.51]])
-    # theta_goal = np.array([[2.50], [2.01], [-1.04], [0.92]])
 
     # Properties of our system
     ROBOT_NUM_JOINTS = len(theta_start)
@@ -47,6 +47,9 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
 
     # Create a list which represents our (hopefully) found path from start to goal theta!
     final_path = np.zeros((ROBOT_NUM_JOINTS,1))
+
+    # Initialize a list which holds all the dummy handles we've created
+    dummy_handle_list = []
 
     # Start running our algorithm to test random points in config space
     while(True):
@@ -76,6 +79,7 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
         if (collision_detection.check_path_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, curr_theta, start_tree[closest_index].value) == 0):
             start_tree.append(Tree_Node(curr_theta, closest_index))
             print("appended to start tree: \n{} ".format(repr(curr_theta)))
+            dummy_handle_list.append(add_dummy(clientID, 0.1, [255,0,0], curr_theta, base_joint_handle))
 
         # 4. See if we can connect this same randomly-generated point to our goal-theta tree using steps 2 and 3 above.
         shortest_dist = float('inf')
@@ -87,7 +91,8 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
                 closest_index = index
         if (collision_detection.check_path_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, curr_theta, goal_tree[closest_index].value) == 0):
             goal_tree.append(Tree_Node(curr_theta, closest_index))
-            # print("appended to goal tree: \n{}".format(repr(curr_theta)))
+            print("appended to goal tree: \n{}".format(repr(curr_theta)))
+            dummy_handle_list.append(add_dummy(clientID, 0.1, [0,255,0], curr_theta, base_joint_handle))
 
         # 5. We've found a viable path if we added the same node to both trees!
         if (start_tree[-1].value.all == goal_tree[-1].value.all):
@@ -112,4 +117,22 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
             break
 
     print("Your final path is \n{}".format(repr(final_path)))
-    return final_path
+    return final_path, dummy_handle_list
+
+
+# add_dummy
+# A helper function for the path-planner to visualize points it's added to its trees
+# INPUT:   clientID- used to interface with VREP
+#          size- desired size of the dummy
+#          color- desired color of the dummy
+#          theta- calculates position of the dummy using forward kinematics for the robot
+# OUTPUT:  dummy_handle- the handle of the dummy we just added
+
+def add_dummy(clientID, size, color, theta, base_joint_handle):
+    S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
+
+    errorCode, dummy_handle = vrep.simxCreateDummy(clientID, 0.1, color, vrep.simx_opmode_oneshot_wait)
+    end_position = forward_kinematics.forwardKinematics(theta)[0:3,3:4]
+    vrep.simxSetObjectPosition(clientID, dummy_handle, base_joint_handle, end_position, vrep.simx_opmode_oneshot_wait)
+
+    return dummy_handle
