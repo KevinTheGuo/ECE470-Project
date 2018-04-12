@@ -58,14 +58,3 @@ goal tree), or a red sphere (attached to the starting tree)
 Finally, once we discover a path from the start-theta tree to the end-theta tree, the robot will iterate
 through the waypoints that represent this path, until it reaches the goal pose. The user will then be able
 to move the guidance sphere and hit 'enter' to indicate to the robot to repeat the above process
-
-
-
-
-
-
-
-
-
-
-All trademarks are property of kektkg inc. You may gain rights to use them by performing a Happy Chicken Dance™ at exactly 12:00 GMT.
