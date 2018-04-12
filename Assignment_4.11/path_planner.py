@@ -151,15 +151,15 @@ def add_dummy(clientID, size, color, theta, base_joint_handle):
 # Does your robot GOT THEM SMOOTH MOVES? No? Well, say goodbye to your clunky awkward
 # robots, 'cause this function is gonna GIMME THEM SMOOTH MOVES.
 def gimme_them_smooth_moves(clientID, joint_handles, theta_goal):
-    SMOOTHNESS_LEVEL = 15    # how SMOOTH are YOU?
+    SMOOTHNESS_LEVEL = 1    # how SMOOTH are YOU?
 
     theta_start = np.zeros((7,1))
     for i in range(7):
         errorCode, jointPos = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
         theta_start[i] = jointPos
 
-    print("theta start is {}".format(theta_start))
-    print("theta goal is {}".format(theta_goal))
+    # print("theta start is {}".format(theta_start))
+    # print("theta goal is {}".format(theta_goal))
 
     samples = 1 + math.ceil(collision_detection.calc_distance(theta_start, theta_goal)*SMOOTHNESS_LEVEL)
     for step in np.arange(0, 1, 1/samples):
