@@ -37,6 +37,7 @@ if clientID != -1:
     # Get a handle for the movable inverse kinematics dummy
     errorCode, target_dummy_handle = vrep.simxGetObjectHandle(clientID, "Dummy", vrep.simx_opmode_oneshot_wait)
 
+    # Adding robot dummies representing bounding volumes onto joint
     robot_joint_bounding_handles = []
     for joint in range(7):
         # Make a Dummy for each joint
@@ -110,10 +111,10 @@ if clientID != -1:
 
             # Get r_robot (radius of robot's joints)
             r_robot = np.zeros((1,8))
-            r_robot.fill(0.06)
+            r_robot.fill(0.07)
             r_robot[0,0] = 0.01
             r_robot[0,6] = 0.03
-            r_robot[0,7] = 0.01
+            r_robot[0,7] = 0.02
 
             # Get p_obstacle (position of external obstacles)
             print(joint_handles)
@@ -127,12 +128,12 @@ if clientID != -1:
             r_obstacle.fill(BOUNDING_VOL_RADIUS)
 
             # Plan a path!
-            print("theta_start: \n{}".format(theta_start))
-            print("theta_goal: \n{}".format(theta_goal))
-            print("p_robot: \n{}".format(p_robot))
-            print("r_robot: \n{}".format(r_robot))
-            print("p_obstacle: \n{}".format(p_obstacle))
-            print("r_obstacle: \n{}".format(r_obstacle))
+            # print("theta_start: \n{}".format(theta_start))
+            # print("theta_goal: \n{}".format(theta_goal))
+            # print("p_robot: \n{}".format(p_robot))
+            # print("r_robot: \n{}".format(r_robot))
+            # print("p_obstacle: \n{}".format(p_obstacle))
+            # print("r_obstacle: \n{}".format(r_obstacle))
 
             # TESTING STUFF
             # S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
@@ -160,8 +161,8 @@ if clientID != -1:
                         for j in range(7):                     # Iterate through every joint on our robot
                             print(final_path[j,i])
                             vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j,i], vrep.simx_opmode_oneshot_wait)
-                            sleep(0.2)
-                        sleep(2)
+                            sleep(0.1)
+                        sleep(0.5)
                 else:
                     print("Viable path not found in {} iterations".format(max_iterations()))
 
