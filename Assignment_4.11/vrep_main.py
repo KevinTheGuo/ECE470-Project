@@ -27,6 +27,11 @@ if clientID != -1:
     print ('Connected to KUKA Simulator')
 
     p_obstacle_list = []
+    for i in range(7):
+        ball_name = 'Dummy' + str(i)
+        errorCode, dummy_handle = vrep.simxGetObjectHandle(clientID, ball_name, vrep.simx_opmode_oneshot_wait)
+        errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
+        p_obstacle_list.append(dummy_pos)
 
     # Loop through all the robot's joints and get unique ID's for each
     joint_handles = []
@@ -52,20 +57,20 @@ if clientID != -1:
         vrep.simxSetObjectParent(clientID, robot_joint_bounding_handles[joint], joint_handles[joint], False, vrep.simx_opmode_oneshot_wait)
 
     # Kevin
-    # print("Building wall!")
-    wall_handles = []
-    # for z_pos in range(1, 2):
-    # # for z_pos in range(1, 12, 2):
-    # #     for x_pos in range(-10, 10, 2):
-    for x_pos in range(1, 2):
-        errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
-        wall_handles.append(bounding_handle)
-        vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05, 0.2 , 0.05],vrep.simx_opmode_oneshot_wait)
+    # # print("Building wall!")
+    # wall_handles = []
+    # # for z_pos in range(1, 2):
+    # for z_pos in range(1, 12, 2):
+    #     for x_pos in range(-10, 10, 2):
+    #     # for x_pos in range(1, 2):
+    #         errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
+    #         wall_handles.append(bounding_handle)
+    #         vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05 * x_pos, 0.3 , 0.05 * z_pos],vrep.simx_opmode_oneshot_wait)
     #
-    for i in range(len(wall_handles)):
-        errorCode, sphere_pos = vrep.simxGetObjectPosition(clientID, wall_handles[i], -1, vrep.simx_opmode_oneshot_wait)
-        p_obstacle_list.append(sphere_pos)
-
+    # for i in range(len(wall_handles)):
+    #     errorCode, sphere_pos = vrep.simxGetObjectPosition(clientID, wall_handles[i], -1, vrep.simx_opmode_oneshot_wait)
+    #     p_obstacle_list.append(sphere_pos)
+    #
     # Create NUMPY array from wall sphere list
     p_obstacle = np.array(p_obstacle_list)
     p_obstacle = np.transpose(p_obstacle)
@@ -126,7 +131,7 @@ if clientID != -1:
             r_robot[0,7] = 0.02
 
             # Get r_obstacle (radius of each external obstacle)
-            r_obstacle = np.zeros((1,len(wall_handles)))
+            r_obstacle = np.zeros((1,7))
             r_obstacle.fill(BOUNDING_VOL_RADIUS)
 
             # Plan a path!
@@ -139,7 +144,7 @@ if clientID != -1:
 
             # Make sure that we have a valid theta goal
             if (theta_goal is not None):
-                max_iterations = 420
+                max_iterations = 10000
                 final_path, dummy_handle_list = path_planner.plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, max_iterations, clientID, joint_handles[0])
 
                 # If we generated a valid path, iterate through it and move our robot!
