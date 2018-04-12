@@ -41,13 +41,13 @@ if clientID != -1:
     for joint in range(7):
         # Make a Dummy for each joint
         if joint == 5:
-            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, None, vrep.simx_opmode_oneshot_wait)
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [125,125,125], vrep.simx_opmode_oneshot_wait)
         elif joint == 6:
-            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.08, None, vrep.simx_opmode_oneshot_wait)
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.08, [125,125,125], vrep.simx_opmode_oneshot_wait)
         else:
-            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.15, [125,125,125], vrep.simx_opmode_oneshot_wait)
         robot_joint_bounding_handles.append(bounding_handle)
-        vrep.simxSetObjectParent(clientID,robot_joint_bounding_handles[joint],joint_handles[joint],False,vrep.simx_opmode_oneshot_wait)
+        vrep.simxSetObjectParent(clientID, robot_joint_bounding_handles[joint], joint_handles[joint], False, vrep.simx_opmode_oneshot_wait)
 
     # Get handles for all the movable collision detection dummies
     # Set number of obstacles
