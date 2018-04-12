@@ -1,4 +1,4 @@
-# Week Four: Demonstrating Collision Checking
+﻿# Week Four: Demonstrating Collision Checking
 
 ## 1. Connecting Python to V-REP
 ### These are the same initial steps as the past weeks'
@@ -36,6 +36,21 @@ movable, external obstacles, a collision will be reported.
 When the robot is moved to a new position, it will not only check for collisions with external objects, but also check for collisions with itself.
 The robot has a bounding sphere at each joint. If that bounding sphere comes in contact with another joint bounding sphere, the robot is in self
 collision. A warning is printed to the terminal. For simplicity each joint is checked against every other joint.
+***
+## Path Planning 
+
+We start by acquiring the current position of the robot and usin inverse kinematics to figure out the θ~start~ set. 
+The Guiding Spehere(TM) then indicates the X Y Z coordinates of our target location. We again use Inverse Kinematics to turn this into a θ~goal~ set. 
+
+We perform the following steps in a loop till we succesfully find a path from θ~start~ to θ~goal~. 
+
+1.  Generate a random θ set
+2.  check if the θ set would be in collision
+a. if in collision go back to step 1 and repeat. 
+b. once you find a valid θ set go to step 3
+3. Check the distance of the current θ set and the last node in θ~start~ and θ~goal~. 
+4. Add the θ set to θ~start~ or θ~goal~, whichever one has the shorter distance.
+
 
 
 
