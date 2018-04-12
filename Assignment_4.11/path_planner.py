@@ -61,7 +61,17 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
             return False
 
         # 1. Create a random point in configuration-space, and see if it results in immediate collision
-        curr_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
+        #curr_theta = np.random.uniform(low=-3.14, high=3.14, size=theta_start.shape)
+        curr_theta = np.zeros(theta_start.shape)
+        curr_theta[0,0] = np.random.uniform(low=-2.96, high=2.96)
+        curr_theta[1,0] = np.random.uniform(low=-2.09, high=2.09)
+        curr_theta[2,0] = np.random.uniform(low=-2.96, high=2.96)
+        curr_theta[3,0] = np.random.uniform(low=-2.09, high=2.09)
+        curr_theta[4,0] = np.random.uniform(low=-2.96, high=2.96)
+        curr_theta[5,0] = np.random.uniform(low=-2.09, high=2.09)
+        curr_theta[6,0] = np.random.uniform(low=-3.05, high=3.05)
+
+
         if (collision_detection.check_point_collision(S, p_robot, r_robot, p_obstacle, r_obstacle, curr_theta)):
             continue   # If there is an immediate collision, continue to next iteration
 
