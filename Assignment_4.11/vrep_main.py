@@ -36,6 +36,18 @@ if clientID != -1:
     # Get a handle for the movable inverse kinematics dummy
     errorCode, target_dummy_handle = vrep.simxGetObjectHandle(clientID, "Dummy", vrep.simx_opmode_oneshot_wait)
 
+    robot_joint_bounding_handles = []
+    for joint in range(7):
+        # Make a Dummy for each joint
+        if joint == 5:
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, None, vrep.simx_opmode_oneshot_wait)
+        elif joint == 6:
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.08, None, vrep.simx_opmode_oneshot_wait)
+        else:
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.15, None, vrep.simx_opmode_oneshot_wait)
+        robot_joint_bounding_handles.append(bounding_handle)
+        vrep.simxSetObjectParent(clientID,robot_joint_bounding_handles[joint],joint_handles[joint],False,vrep.simx_opmode_oneshot_wait)
+
     # Get handles for all the movable collision detection dummies
     # Set number of obstacles
     NUM_OBSTACLES = 5
@@ -55,6 +67,9 @@ if clientID != -1:
 
     try:
         while True:
+            # Wait for user to say they want to move
+            input("Waiting for user to set point...")
+
             # Get the desired pose by checking the pose of the user-movable dummy
             errorCode, dummy_pos = vrep.simxGetObjectPosition(clientID, target_dummy_handle, -1, vrep.simx_opmode_oneshot_wait)
             #print("Dummy pos: {}".format(dummy_pos))
