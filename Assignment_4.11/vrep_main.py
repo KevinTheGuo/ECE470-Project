@@ -133,6 +133,9 @@ if clientID != -1:
             # Get r_obstacle (radius of each external obstacle)
             r_obstacle = np.zeros((1,7))
             r_obstacle.fill(BOUNDING_VOL_RADIUS)
+            r_obstacle[:,0] = 0.3
+            r_obstacle[:,4] = 0.25
+            r_obstacle[:,6] = 0.1
 
             # Plan a path!
             # print("theta_start: \n{}".format(theta_start))
@@ -157,11 +160,11 @@ if clientID != -1:
                         print(final_path[0:6,i])
                         theta_goal = np.zeros((6,1))
                         theta_goal = final_path[0:6,i]
-                        path_planner.gimme_them_smooth_moves(clientID, joint_handles, theta_goal)
-                        # for j in range(7):                     # Iterate through every joint on our robot
-                        #     print(final_path[j,i])
-                        #     vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j,i], vrep.simx_opmode_oneshot_wait)
-                        # sleep(0.5)
+                        # path_planner.gimme_them_smooth_moves(clientID, joint_handles, theta_goal)
+                        for j in range(7):                     # Iterate through every joint on our robot
+                            print(final_path[j,i])
+                            vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j,i], vrep.simx_opmode_oneshot_wait)
+                        sleep(0.5)
                 else:
                     print("Viable path not found in {} iterations".format(max_iterations))
 
@@ -173,10 +176,9 @@ if clientID != -1:
         pass
 
     sleep(0.5)
+    for i in range(7):
+        vrep.simxRemoveObject(clientID, robot_joint_bounding_handles[i], vrep.simx_opmode_oneshot_wait)
 
-    # tear down the wall_handles
-    for i in range(len(wall_handles)):
-        vrep.simxRemoveObject(clientID,wall_handles[i],vrep.simx_opmode_oneshot_wait)
     # Now close the connection to V-REP:
     vrep.simxFinish(clientID)
 else:
