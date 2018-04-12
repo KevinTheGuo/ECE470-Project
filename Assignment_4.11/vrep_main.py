@@ -53,10 +53,12 @@ if clientID != -1:
         vrep.simxSetObjectParent(clientID, robot_joint_bounding_handles[joint], joint_handles[joint], False, vrep.simx_opmode_oneshot_wait)
 
     # Kevin
-    print("Building wall!")
+    # print("Building wall!")
     wall_handles = []
-    for z_pos in range(1, 12, 2):
-        for x_pos in range(-10, 10, 2):
+    for z_pos in range(1, 2):
+    # for z_pos in range(1, 12, 2):
+    #     for x_pos in range(-10, 10, 2):
+        for x_pos in range(1, 2):
             errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
             wall_handles.append(bounding_handle)
             vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05 * x_pos, 0.2 , 0.05 * z_pos],vrep.simx_opmode_oneshot_wait)
