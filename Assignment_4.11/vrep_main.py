@@ -77,7 +77,7 @@ if clientID != -1:
     print(repr(p_obstacle))
 
     # Create bounding volume dummies for the joints
-    BOUNDING_VOL_RADIUS = 0.15
+    BOUNDING_VOL_RADIUS = 0.1
     TINY_RADIUS = 0.05
 
     # Initialize variable which let us check if the dummy has been moved
@@ -125,17 +125,17 @@ if clientID != -1:
 
             # Get r_robot (radius of robot's joints)
             r_robot = np.zeros((1,8))
-            r_robot.fill(0.07)
+            r_robot.fill(0.08)
             r_robot[0,0] = 0.01
-            r_robot[0,6] = 0.03
-            r_robot[0,7] = 0.02
+            r_robot[0,6] = 0.04
+            r_robot[0,7] = 0.03
 
             # Get r_obstacle (radius of each external obstacle)
             r_obstacle = np.zeros((1,7))
             r_obstacle.fill(BOUNDING_VOL_RADIUS)
-            r_obstacle[:,0] = 0.3
-            r_obstacle[:,4] = 0.25
-            r_obstacle[:,6] = 0.1
+            r_obstacle[:,0] = 0.1
+            r_obstacle[:,4] = 0.1
+            r_obstacle[:,6] = 0.05
 
             # Plan a path!
             # print("theta_start: \n{}".format(theta_start))
