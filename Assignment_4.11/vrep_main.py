@@ -49,6 +49,17 @@ if clientID != -1:
         robot_joint_bounding_handles.append(bounding_handle)
         vrep.simxSetObjectParent(clientID,robot_joint_bounding_handles[joint],joint_handles[joint],False,vrep.simx_opmode_oneshot_wait)
 
+    # Kevin
+    wall_handles = []
+    wall_rows = 3
+    wall_cols = 3
+    for wall_row in range(wall_rows):
+        for wall_col in range(wall_cols):
+            count = wall_col*wall_row
+            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, None, vrep.simx_opmode_oneshot_wait)
+            wall_handles.append(bounding_handle)
+            vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.01*count,0.01*count,0.01*count],vrep.simx_opmode_oneshot_wait)
+            print(wall_row, wall_col)
     # Get handles for all the movable collision detection dummies
     # Set number of obstacles
     NUM_OBSTACLES = 5
