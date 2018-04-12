@@ -57,7 +57,7 @@ if clientID != -1:
         for x_pos in range(-10, 10, 2):
             errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
             wall_handles.append(bounding_handle)
-            vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05 * x_pos,0.5 , 0.05 * z_pos],vrep.simx_opmode_oneshot_wait)
+            vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05 * x_pos, 0.2 , 0.05 * z_pos],vrep.simx_opmode_oneshot_wait)
             print(0.05 * z_pos, 0.05 * x_pos)
     # Get handles for all the movable collision detection dummies
     # Set number of obstacles
