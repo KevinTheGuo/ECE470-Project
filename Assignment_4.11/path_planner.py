@@ -1,5 +1,6 @@
 # File which has the path-planning functions, making heavy use of collision_detection.py
 import vrep
+import math
 import numpy as np
 from numpy.linalg import inv, norm
 from scipy.linalg import expm, logm
@@ -126,7 +127,7 @@ def plan_my_path(p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_go
             # And now we should have our final path! Let's break.
             break
 
-    print("Your final path is \n{}".format(repr(final_path)))
+    # print("Your final path is \n{}".format(repr(final_path)))
     return final_path, dummy_handle_list
 
 
@@ -146,3 +147,22 @@ def add_dummy(clientID, size, color, theta, base_joint_handle):
     vrep.simxSetObjectPosition(clientID, dummy_handle, base_joint_handle, end_position, vrep.simx_opmode_oneshot_wait)
 
     return dummy_handle
+
+# Does your robot GOT THEM SMOOTH MOVES? No? Well, say goodbye to your clunky awkward
+# robots, 'cause this function is gonna GIMME THEM SMOOTH MOVES.
+def gimme_them_smooth_moves(clientID, joint_handles, theta_goal):
+    SMOOTHNESS_LEVEL = 20    # how SMOOTH are YOU?
+
+    theta_start = np.zeros((7,1))
+    for i in range(7):
+        errorCode, jointPos = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
+        theta_start[i] = jointPos
+
+    print("theta start is {}".format(theta_start))
+    print("theta goal is {}".format(theta_goal))
+
+    samples = 1 + math.ceil(collision_detection.calc_distance(theta_start, theta_goal)*SMOOTHNESS_LEVEL)
+    for step in np.arange(0, 1, 1/samples):
+        curr_theta = (1-step)*theta_start + step*theta_goal
+        for i in range(7):                     # Iterate through every joint on our robot
+            vrep.simxSetJointPosition(clientID, joint_handles[i], curr_theta[i,0], vrep.simx_opmode_oneshot_wait)

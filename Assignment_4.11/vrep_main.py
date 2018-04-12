@@ -20,7 +20,6 @@ import quaternion
 import collision_detection
 import path_planner
 
-
 print ('KUKA MOVER started')
 vrep.simxFinish(-1)  # just in case, close all opened connections
 clientID = vrep.simxStart('127.0.0.1', 19999, True, True, 5000, 5)  # Connect to V-REP
@@ -55,14 +54,14 @@ if clientID != -1:
     # Kevin
     # print("Building wall!")
     wall_handles = []
-    for z_pos in range(1, 2):
-    # for z_pos in range(1, 12, 2):
-    #     for x_pos in range(-10, 10, 2):
-        for x_pos in range(1, 2):
-            errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
-            wall_handles.append(bounding_handle)
-            vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05 * x_pos, 0.2 , 0.05 * z_pos],vrep.simx_opmode_oneshot_wait)
-
+    # for z_pos in range(1, 2):
+    # # for z_pos in range(1, 12, 2):
+    # #     for x_pos in range(-10, 10, 2):
+    for x_pos in range(1, 2):
+        errorCode, bounding_handle = vrep.simxCreateDummy(clientID, 0.10, [200,200,200], vrep.simx_opmode_oneshot_wait)
+        wall_handles.append(bounding_handle)
+        vrep.simxSetObjectPosition(clientID,bounding_handle,-1,[0.05, 0.2 , 0.05],vrep.simx_opmode_oneshot_wait)
+    #
     for i in range(len(wall_handles)):
         errorCode, sphere_pos = vrep.simxGetObjectPosition(clientID, wall_handles[i], -1, vrep.simx_opmode_oneshot_wait)
         p_obstacle_list.append(sphere_pos)
@@ -147,16 +146,17 @@ if clientID != -1:
                 if final_path is not False:
                     # print(len(final_path[0]))
                     print("Moving robot to goal theta!")
+                    print(final_path)
                     for i in range(len(final_path[0])):   # Iterate through each point in our path
                         print("Waypoint {}".format(i))
-                        gimme_them_smooth_moves(clientID, joint_handles, final_path[0:6,i])
-
-
-
-                        for j in range(7):                     # Iterate through every joint on our robot
-                            print(final_path[j,i])
-                            vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j,i], vrep.simx_opmode_oneshot_wait)
-                        sleep(0.5)
+                        print(final_path[0:6,i])
+                        theta_goal = np.zeros((6,1))
+                        theta_goal = final_path[0:6,i]
+                        path_planner.gimme_them_smooth_moves(clientID, joint_handles, theta_goal)
+                        # for j in range(7):                     # Iterate through every joint on our robot
+                        #     print(final_path[j,i])
+                        #     vrep.simxSetJointPosition(clientID, joint_handles[j], final_path[j,i], vrep.simx_opmode_oneshot_wait)
+                        # sleep(0.5)
                 else:
                     print("Viable path not found in {} iterations".format(max_iterations))
 
@@ -178,19 +178,3 @@ else:
     print ('Failed connecting to remote API server')
     sys.exit("Connection Failed")
 print ('Program ended')
-
-
-# Does your robot GOT THEM SMOOTH MOVES? No? Well, say goodbye to your clunky awkward
-# robots, 'cause this function is gonna GIMME THEM SMOOTH MOVES.
-def gimme_them_smooth_moves(clientID, joint_handles, theta_goal):
-    SMOOTHNESS_LEVEL = 20    # HOW SMOOTH ARE YOU?
-
-    theta_start = np.zeros((7,1))
-    for i in range(7):
-        errorCode, jointPos = vrep.simxGetJointPosition(clientID, joint_handles[i], vrep.simx_opmode_oneshot_wait)
-        theta_start[i] = jointPos
-
-    for step in np.arange(0, 1, 1/SMOOTHNESS_LEVEL):
-        curr_theta = (1-step)*theta_start + step*theta_goal
-        for i in range(7):                     # Iterate through every joint on our robot
-            vrep.simxSetJointPosition(clientID, joint_handles[i], curr_theta[i,0], vrep.simx_opmode_oneshot_wait)
