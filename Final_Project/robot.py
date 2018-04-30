@@ -211,31 +211,47 @@ if __name__ == "__main__":
     # r.rel_move_cart(z=-150)
     # r.get_info()
 
-    goal_pose = aruco.goal_pose()
+    # Try to grab video input
+    video = cv2.VideoCapture(0)
+    # Exit if video not opened.
+    if not video.isOpened():
+        print('Could not open video!')
+        exit()
 
-    # convert the pose to a theta list
-    # This is close but not exact
-    imperfect_theta_list = inverse_kinematics.inverse_kinematics(pose)
+        try:
+            while(True):
+                # Check for user input
+                key = cv2.waitKey(1) & 0xff
+                if key == 27:
+                    break
 
-    # Print the inverse kinematics result
-    if theta_list is not None:
-        print("First theta list ")
-        for i in range(7):
-            print("theta_", i+1, "is", imperfect_theta_list[i])
-    sleep(0.5)
+                # Grab another frame
+                read_success, frame = video.read()
+                if not read_success:
+                    print('Cannot read video file!')
+                    break
 
-    # Move the robot there
-    r.abs_move_joint(imperfect_theta_list[0],imperfect_theta_list[1],imperfect_theta_list[2],imperfect_theta_list[3],imperfect_theta_list[4],imperfect_theta_list[5],imperfect_theta_list[6])
+                # Find the marker pose and draw stuff.
+                frame, isValid, pose = findAndDrawMarkers(frame)
+                cv2.imshow("ECE470 Final Project", frame)
 
-    # get the new pose from the arco marker
-    goal_pose = aruco.goal_pose()
+                # If we found a marker pose and converged to it, then move the robot there!
+                if (isValid != -1):
+                    theta_list = inverse_kinematics.inverse_kinematics(pose)  # inverse kinematics
+                    if theta_list is not None:          # Make sure that inverse kinematics has converged.
+                        print("Inverse kinematics has converged! First theta list: ")
+                        for i in range(7):
+                            print("theta_", i+1, "is", theta_list[i])
+                        sleep(1)
 
-    # Have the KUKA solve for the requied transformation matric this time
-    # this resovles the small difference from our inverse_kinematics
+                        # Move the robot there
+                        r.abs_move_joint(theta_list[0],theta_list[1],theta_list[2],theta_list[3],theta_list[4],theta_list[5],theta_list[6])
+                        sleep(20)   # sleep for a while
 
+        except (Exception, KeyboardInterrupt) as e:
+            video.release()
+            cv2.destroyAllWindows()
+            raise e
 
-
-
-
-
-
+        video.release()
+        cv2.destroyAllWindows()

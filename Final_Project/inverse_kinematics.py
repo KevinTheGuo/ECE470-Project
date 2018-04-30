@@ -49,16 +49,17 @@ def rotat_screw(a,q):
     S[3:6,0:1] = -skew_sym(a) @ q
     return S
 
+# Inverse kinematics function. Takes in a desired pose, an initial guess, and a max number of iterations
+# Returns a list of thetas if if it converges to a valid point, or None if not valid.
 def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=50):
     M = np.array([[1., 0., 0., 0.], [0., 1., 0., 0.], [0., 0., 1., 1.266], [0., 0., 0., 1.]])
     S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
 
-    print("Hi, and welcome to the Robo-Swagorithm 3001!\n")
-
     # Make first theta guess
     theta = np.full((7,1),0)
 
-    print("Please wait... processing question:\n")
+    # print("Hi, and welcome to the Robo-Swagorithm 3001!\n")
+    # print("Please wait... processing question:\n")
 
     # Variable to check how many iterations we're at so far
     iterations = 0
@@ -95,15 +96,14 @@ def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=50):
         theta = theta + thetadot
 
         # 6: Repeat until we are below cutoff
-        print("Distance is {}".format(np.linalg.norm(V)))
+        # print("Distance is {}".format(np.linalg.norm(V)))
         if(np.linalg.norm(V) < 0.01):
-            print("\nDing!... Your answer is ready!\n")
+            # print("\nDing!... Your answer is ready!\n")
             print(repr(theta))
             return(theta)
 
         # 7: Check if we surpass our defined maximum number of iterations
         if (iterations > iterationMax):
-            print("\nI'm sorry Tim, I'm afraid I can't do that.\n")
-            return
+            # print("\nI'm sorry Tim, I'm afraid I can't do that.\n")
+            return None
         iterations += 1
-
