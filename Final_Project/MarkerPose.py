@@ -1,6 +1,3 @@
-# This file contains code which uses the Aruco library to grab marker corners and IDs, and then
-# uses that data to derive marker poses, using our own ECE470 code! Runs quite well in realtime.
-
 import numpy as np
 from numpy.linalg import inv, norm
 from scipy.linalg import expm, logm
@@ -49,43 +46,64 @@ def eta_d(array):
 # returns two variables- an integer num_iterations tracking the number of iterations to converage,
 #                        and a pose matrix if numIterations is not -1
 def markerPoseFinder(w, K, q):
-    MIN_ERR = 1e-2 # Defined constants
-    MU = 1e-3
+    # Get p of the tag frame, based on w
+    # p_intag = np.array([[-w/2,w/2,w/2,-w/2],[-w/2,-w/2,w/2,w/2],[0,0,0,0],[1,1,1,1]]) # changed from HW because of different axes directions
+    p_intag = np.array([[-w/2,w/2,w/2,-w/2],[w/2,w/2,-w/2,-w/2],[0,0,0,0],[1,1,1,1]])
 
-    p_intag = np.array([[-w/2,w/2,w/2,-w/2],[w/2,w/2,-w/2,-w/2],[0,0,0,0],[1,1,1,1]])  # Get p of the tag frame, based on w
-    q_inimage = np.ones((3,4))  # Put q in homogenous coordinates
+    # Put q in homogenous coordinates
+    q_inimage = np.ones((3,4))
     q_inimage[0:2,0:4] = q
 
-    x = np.eye(4,4)  # Make first pose guess
+    # Make first pose guess
+    x = np.eye(4,4)
     x[0:3,3:4] = np.array([[0],[0],[1]])
 
+    # Track iterations
     iterations = 0
-    while(True):  # Levenberg-Marquardt
+
+    while(True):
+        # Levenberg-Marquardt
         iterations += 1
 
-        # Initialize variables
-        u_sum1, u_sum2 = 0,0
+        # Initialize variables to hold sums for the first and second summed elements of u
+        u_sum1 = 0
+        u_sum2 = 0
+
+        # Initialize other stuff.
         b = np.zeros((4,1))
         J = np.zeros((4,6))
         u = np.zeros((6,1))
 
-        for i in range(4):  # Iterate over each point and the corresponding pair, adding to our sum variables
+        # Iterate over each point and the corresponding pair, calculating b, J, and adding to our sum variables
+        for i in range(4):
             q_point = q_inimage[0:3,i]
             p_point = p_intag[0:4,i]
 
-            b[0:3,0] = q_point - eta(K @ standard_projection @ x @ p_point)   # Calculate b
-            for j in range(6):                       # Calculate J (df/du)
+            # Calculate b
+            b[0:3,0] = q_point - eta(K @ standard_projection @ x @ p_point)
+
+            # Calculate J (df/du)
+            for j in range(6):
                 basis = np.eye(6,6)[0:6,j:j+1]
                 J[0:3,j] = eta_d(K @ standard_projection @ x @ p_point) @ K @ standard_projection @ bracket(basis) @ x @ p_point
-            u_sum1 += np.transpose(J)@J  # Add our contribution to the two sums that help build u
+
+            # Add our contribution to the two sums that help build u
+            u_sum1 += np.transpose(J)@J
             u_sum2 += np.transpose(J)@b
 
-        u[0:6,0:1] = inv(u_sum1 + MU*np.eye(6,6)) @ u_sum2  # Finish calculating u from its sums
-        if norm(u) < MIN_ERR:  # Check to see if u is within our error tolerance
+        # Now that we've finished calculating u_sum1 and u_sum2, finish calculating u
+        MU = 1e-3
+        u[0:6,0:1] = inv(u_sum1 + MU*np.eye(6,6)) @ u_sum2
+
+        # Check to see if u is within our error tolerance
+        MIN_ERR = 1e-2
+        if norm(u) < MIN_ERR:
             break
 
-        x = expm(bracket(u)) @ x   # If u isn't within error tolerance, update our guess x
-        if iterations > 20:   # If we exceed a set number of iterations, just end
+        # If u isn't within error tolerance, update our guess x
+        x = expm(bracket(u)) @ x
+
+        if iterations > 20:
             return -1, None
 
     return iterations, x
