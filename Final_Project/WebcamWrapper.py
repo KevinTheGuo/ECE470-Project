@@ -1,7 +1,11 @@
 # This files contains code which uses opencv to access a webcam and grab frames for some processing.
 # Currently, it's set up to call a function from MarkerPose.py
 
-import cv2
+import importlib.util
+spec = importlib.util.spec_from_file_location("cv2", "/home/lfsony/.local/lib/python3.5/site-packages/cv2/cv2.cpython-35m-x86_64-linux-gnu.so")
+cv2 = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cv2)
+
 import MarkerPose
 
 # Try to grab video input
