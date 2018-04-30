@@ -1,6 +1,6 @@
 # This file contains code which uses the Aruco library to grab marker corners and IDs, and then
 # uses that data to derive marker poses, using our own ECE470 code! Runs quite well in realtime.
-
+#/home/lfsony/.local/lib/python3.5/site-packages/cv2"
 import numpy as np
 from numpy.linalg import inv, norm
 from scipy.linalg import expm, logm
