@@ -2,6 +2,7 @@
 # Currently, it's set up to call a function from MarkerPose.py
 
 import cv2
+import MarkerPose
 
 # Try to grab video input
 video = cv2.VideoCapture(0)
@@ -24,7 +25,7 @@ try:
             break
 
         # Draw the markers, and maybe their poses
-        frame, isValid, pose = findAndDrawMarkers(frame)
+        frame, isValid, pose = MarkerPose.findAndDrawMarkers(frame)
         cv2.imshow("Aruco-Time!", frame)
 
 except (Exception, KeyboardInterrupt) as e:
