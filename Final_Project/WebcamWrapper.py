@@ -9,7 +9,7 @@ spec.loader.exec_module(cv2)
 import MarkerPose
 
 # Try to grab video input
-video = cv2.VideoCapture(0)
+video = cv2.VideoCapture(1)
 # Exit if video not opened.
 if not video.isOpened():
     print('Could not open video!')
