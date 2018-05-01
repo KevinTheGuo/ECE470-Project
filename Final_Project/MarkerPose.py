@@ -63,7 +63,7 @@ def markerPoseFinder(w, K, q):
     q_inimage[0:2,0:4] = q
 
     x = np.eye(4,4)  # Make first pose guess
-    x[0:3,3:4] = np.array([[0],[0],[1]])
+    x[0:3,3:4] = np.array([[0],[0],[0.5]])
 
     iterations = 0
     while(True):  # Levenberg-Marquardt
