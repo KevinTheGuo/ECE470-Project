@@ -55,8 +55,8 @@ def eta_d(array):
 # returns two variables- an integer num_iterations tracking the number of iterations to converage,
 #                        and a pose matrix if numIterations is not -1
 def markerPoseFinder(w, K, q):
-    MIN_ERR = 0.1 # Defined constants
-    MU = 1e-3
+    MIN_ERR = 0.25 # Defined constants
+    MU = 0.05
 
     p_intag = np.array([[-w/2,w/2,w/2,-w/2],[w/2,w/2,-w/2,-w/2],[0,0,0,0],[1,1,1,1]])  # Get p of the tag frame, based on w
     q_inimage = np.ones((3,4))  # Put q in homogenous coordinates
