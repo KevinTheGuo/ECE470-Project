@@ -5,6 +5,7 @@
 # move the robot joints by passing it command-line arguments.
 
 # Import CV2 with importlib magic
+import math #we need this to get math.pi for rad -> deg conversion
 import importlib.util
 spec = importlib.util.spec_from_file_location("cv2", "/home/lfsony/.local/lib/python3.5/site-packages/cv2/cv2.cpython-35m-x86_64-linux-gnu.so")
 cv2 = importlib.util.module_from_spec(spec)
@@ -58,10 +59,11 @@ try:
             T_markInBot = T_camInBot @ T_markInCam
             print(T_markInBot)
 
-            thetas = inverse_kinematics.inverse_kinematics(T_markInBot, iterationMax=25)  # inverse kinematics
+            thetas = inverse_kinematics.inverse_kinematics(T_markInBot, iterationMax=25)  # inverse kinematics returns in radians
             if thetas is not None:          # Make sure that inverse kinematics has converged.
                 print("Inverse kinematics has converged! First theta list: ")
                 for i in range(7):
+                    # thetas[i] = thetas[i] * (180 / math.pi)  # Convert thetas (rad -> degrees)
                     print("theta_", i+1, "is", thetas[i])
 
             #     # Call robot.py with specific command-line arguments, to move the robot to those joint angles

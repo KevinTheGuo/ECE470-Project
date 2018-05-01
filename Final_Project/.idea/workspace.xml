@@ -38,8 +38,11 @@
       <file leaf-file-name="ECE470_final.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ECE470_final.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="237">
-              <caret line="24" column="38" selection-start-line="24" selection-start-column="38" selection-end-line="24" selection-end-column="38" />
+            <state relative-caret-position="270">
+              <caret line="66" column="28" selection-start-line="66" selection-start-column="28" selection-end-line="66" selection-end-column="28" />
+              <folding>
+                <element signature="e#555#621#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -207,6 +210,11 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/robot.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -287,6 +295,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
+          <folding>
+            <element signature="e#555#621#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -342,6 +353,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
           <caret line="22" column="39" selection-start-line="22" selection-start-column="39" selection-end-line="22" selection-end-column="39" />
+          <folding>
+            <element signature="e#555#621#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -415,8 +429,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ECE470_final.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="24" column="38" selection-start-line="24" selection-start-column="38" selection-end-line="24" selection-end-column="38" />
+        <state relative-caret-position="270">
+          <caret line="66" column="28" selection-start-line="66" selection-start-column="28" selection-end-line="66" selection-end-column="28" />
+          <folding>
+            <element signature="e#555#621#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
