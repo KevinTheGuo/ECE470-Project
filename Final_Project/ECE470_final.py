@@ -24,6 +24,8 @@ T_camInBot = np.array([[-1, 0, 0, 0   ],
                        [ 0,-1, 0, 0.02],
                        [ 0, 0, 0, 1   ]])
 
+print('Starting up!')
+
 # Try to grab video input
 video = cv2.VideoCapture(1)
 # Exit if video not opened.
@@ -36,6 +38,7 @@ if not video.isOpened():
             # Check for user input
             key = cv2.waitKey(1) & 0xff
             if key == 27:
+                print('Exiting program!')
                 break
 
             # Grab another frame
@@ -69,6 +72,7 @@ if not video.isOpened():
                 #     sleep(20)   # sleep for a while
 
     except (Exception, KeyboardInterrupt) as e:
+        print('Exception encountered!')
         video.release()
         cv2.destroyAllWindows()
         raise e
