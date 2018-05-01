@@ -33,42 +33,41 @@ if not video.isOpened():
     print('Could not open video!')
     exit()
 
-    try:
-        while(True):
-            # Check for user input
-            key = cv2.waitKey(1) & 0xff
-            if key == 27:
-                print('Exiting program!')
-                break
+try:
+    while(True):
+        # Check for user input
+        key = cv2.waitKey(1) & 0xff
+        if key == 27:
+            print('Exiting program!')
+            break
 
-            # Grab another frame
-            read_success, frame = video.read()
-            if not read_success:
-                print('Cannot read video file!')
-                break
+        # Grab another frame
+        read_success, frame = video.read()
+        if not read_success:
+            print('Cannot read video file!')
+            break
 
-            # Find the marker pose and draw stuff.
-            frame, isValid, T_markInCam = findAndDrawMarkers(frame)
-            cv2.imshow("ECE470 Final Project", frame)
-            # If we found a marker pose and converged to it, then move the robot there!
-            if (isValid != -1):
-                # First, transform the pose in camera frame to be in the robot frame
-                print("----------------------------------------------------------------------")
-                T_markInBot = T_camInBot @ T_markInCam
-                print(T_markInBot)
+        # Find the marker pose and draw stuff.
+        frame, isValid, T_markInCam = findAndDrawMarkers(frame)
+        cv2.imshow("ECE470 Final Project", frame)
+        # If we found a marker pose and converged to it, then move the robot there!
+        if (isValid != -1):
+            # First, transform the pose in camera frame to be in the robot frame
+            print("----------------------------------------------------------------------")
+            T_markInBot = T_camInBot @ T_markInCam
+            print(T_markInBot)
 
-                thetas = inverse_kinematics.inverse_kinematics(T_markInBot)  # inverse kinematics
-                if thetas is not None:          # Make sure that inverse kinematics has converged.
-                    print("Inverse kinematics has converged! First theta list: ")
-                    for i in range(7):
-                        print("theta_", i+1, "is", thetas[i])
-                    sleep(5)
+            thetas = inverse_kinematics.inverse_kinematics(T_markInBot)  # inverse kinematics
+            if thetas is not None:          # Make sure that inverse kinematics has converged.
+                print("Inverse kinematics has converged! First theta list: ")
+                for i in range(7):
+                    print("theta_", i+1, "is", thetas[i])
 
-                #     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
-                #     subprocess.call("python robot.py {} {} {} {} {} {} {}"
-                #                     .format(thetas[0],thetas[1],thetas[2],thetas[3],thetas[4],thetas[5],thetas[6]), shell=True)
-                #
-                #     sleep(20)   # sleep for a while
+            #     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
+            #     subprocess.call("python robot.py {} {} {} {} {} {} {}"
+            #                     .format(thetas[0],thetas[1],thetas[2],thetas[3],thetas[4],thetas[5],thetas[6]), shell=True)
+            #
+            #     sleep(20)   # sleep for a while
 
     except (Exception, KeyboardInterrupt) as e:
         print('Exception encountered!')
