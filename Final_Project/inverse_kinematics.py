@@ -1,7 +1,6 @@
 # Kuka inverse kinematics
 # All measurements are in meters and radians
 import numpy as np
-import math
 import scipy.linalg as sl
 
 def skew_sym(arr):
@@ -52,77 +51,59 @@ def rotat_screw(a,q):
 
 # Inverse kinematics function. Takes in a desired pose, an initial guess, and a max number of iterations
 # Returns a list of thetas if if it converges to a valid point, or None if not valid.
-def inverse_kinematics(T_1in0, iterationMax=50):
+def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=50):
     M = np.array([[1., 0., 0., 0.], [0., 1., 0., 0.], [0., 0., 1., 1.266], [0., 0., 0., 1.]])
     S = np.array([[0., 0., 0., 0., 0., 0., 0.], [0., 1., 0., -1., 0., 1., 0.], [1., 0., 1., 0., 1., 0., 1.], [0., -0.34, 0., 0.74, 0., -1.14, 0.], [0., 0., 0., 0., 0., 0., 0.], [0., 0., 0., 0., 0., 0., 0.]])
 
-    for i in range(15):   # Loop while we make guesses.
-    
-        theta = np.random.rand(7,1)
+    # Make first theta guess
+    theta = np.full((7,1),0)
 
-        for j in range(15):   # See if we can converge on this guess
-            # 1: Find current pose of tool given theta guess (frame 2)
-            T_2in0 = (sl.expm(matrix_rep(S[0:6,0:1])*theta[0]) @
-                      sl.expm(matrix_rep(S[0:6,1:2])*theta[1]) @
-                      sl.expm(matrix_rep(S[0:6,2:3])*theta[2]) @
-                      sl.expm(matrix_rep(S[0:6,3:4])*theta[3]) @
-                      sl.expm(matrix_rep(S[0:6,4:5])*theta[4]) @
-                      sl.expm(matrix_rep(S[0:6,5:6])*theta[5]) @
-                      sl.expm(matrix_rep(S[0:6,6:7])*theta[6]) @
-                      M)
+    # print("Hi, and welcome to the Robo-Swagorithm 3001!\n")
+    # print("Please wait... processing question:\n")
 
-            # 2: Find spatial twist to align frame 2 with frame 1 in one second
-            V = inv_matrix_rep(sl.logm(T_1in0 @ sl.inv(T_2in0)))
+    # Variable to check how many iterations we're at so far
+    iterations = 0
 
-            # 3: Find space Jacobian as function of current theta
-            J = np.zeros((6,7))
-            J[0:6,0:1] = jacobian(S,theta,1)
-            J[0:6,1:2] = jacobian(S,theta,2)
-            J[0:6,2:3] = jacobian(S,theta,3)
-            J[0:6,3:4] = jacobian(S,theta,4)
-            J[0:6,4:5] = jacobian(S,theta,5)
-            J[0:6,5:6] = jacobian(S,theta,6)
-            J[0:6,6:7] = jacobian(S,theta,7)
+    while(True):
+        # 1: Find current pose of tool given theta guess (frame 2)
+        T_2in0 = (sl.expm(matrix_rep(S[0:6,0:1])*theta[0]) @
+                  sl.expm(matrix_rep(S[0:6,1:2])*theta[1]) @
+                  sl.expm(matrix_rep(S[0:6,2:3])*theta[2]) @
+                  sl.expm(matrix_rep(S[0:6,3:4])*theta[3]) @
+                  sl.expm(matrix_rep(S[0:6,4:5])*theta[4]) @
+                  sl.expm(matrix_rep(S[0:6,5:6])*theta[5]) @
+                  sl.expm(matrix_rep(S[0:6,6:7])*theta[6]) @
+                  M)
 
-            # 4: Perform inverse velocity kinematics, find thetadot. But use our new algorithm this time!
-            mu = 0.05
-            thetadot = sl.inv(np.transpose(J)@J + mu*np.identity(7)) @ np.transpose(J) @ V
+        # 2: Find spatial twist to align frame 2 with frame 1 in one second
+        V = inv_matrix_rep(sl.logm(T_1in0 @ sl.inv(T_2in0)))
 
-            # 5: Calculate new theta by applying our calculated thetadot for 1 second
-            theta = theta + thetadot
+        # 3: Find space Jacobian as function of current theta
+        J = np.zeros((6,7))
+        J[0:6,0:1] = jacobian(S,theta,1)
+        J[0:6,1:2] = jacobian(S,theta,2)
+        J[0:6,2:3] = jacobian(S,theta,3)
+        J[0:6,3:4] = jacobian(S,theta,4)
+        J[0:6,4:5] = jacobian(S,theta,5)
+        J[0:6,5:6] = jacobian(S,theta,6)
+        J[0:6,6:7] = jacobian(S,theta,7)
 
-            # 6: Repeat until we are below cutoff
-            # print("Distance is {}".format(np.linalg.norm(V)))
-            if(np.linalg.norm(V) < 0.25):
-                # print("Took {} iterations to converge".format(iterations))
+        # 4: Perform inverse velocity kinematics, find thetadot. But use our new algorithm this time!
+        mu = 0.05
+        thetadot = sl.inv(np.transpose(J)@J + mu*np.identity(7)) @ np.transpose(J) @ V
 
-                # First, try and bring the thetas to a reasonable value
-                for i in range(7):
-                    theta[i] = theta[i] * (180 / math.pi)  # Convert thetas (rad -> degrees)
-                    while theta[i] <= -180:
-                        theta[i] += 360
-                    while theta[i] > 180:
-                        theta[i] -= 360
+        # 5: Calculate new theta by applying our calculated thetadot for 1 second
+        theta = theta + thetadot
 
-                if check_invalid_thetas(theta):  # if the thetas are still invalid, break and try again.
-                    break
+        # 6: Repeat until we are below cutoff
+        # print("Distance is {}".format(np.linalg.norm(V)))
+        if(np.linalg.norm(V) < 0.25):
+            # print("\nDing!... Your answer is ready!\n")
+            # print("Took {} iterations to converge".format(iterations))
+            return(theta)
 
-                return(theta)  # otherwise, let's return!
-
-# Helper function to check whether the given thetas are valid for our robot
-# return 0 if valid, 1 if invalid
-def check_invalid_thetas(theta):
-    if (theta[0] < -2.96706) or (theta[0] > 2.96706):
-        return 1
-    if (theta[1] < -2.0944) or (theta[1] > 2.0944):
-        return 1
-    if (theta[2] < -2.96706) or (theta[2] > 2.96706):
-        return 1
-    if (theta[3] < -2.0944) or (theta[3] > 2.0944):
-        return 1
-    if (theta[4] < -2.96706) or (theta[4] > 2.96706):
-        return 1
-    if (theta[5] < -2.0944) or (theta[5] > 2.0944):
-        return 1
-    if (theta[6] < -3.05433) or (theta[6] > 3.05433):
-        return 1
+        # 7: Check if we surpass our defined maximum number of iterations
+        if (iterations > iterationMax):
+            # print("\nI'm sorry Tim, I'm afraid I can't do that.\n")
+            return None
+        iterations += 1
