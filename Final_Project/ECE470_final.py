@@ -51,7 +51,7 @@ if not video.isOpened():
                     sleep(1)
 
                     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
-                    subprocess.call(["robot.py", theta_list[0], theta_list[1], theta_list[2], theta_list[3], theta_list[4], theta_list[5], theta_list[6]))
+                    subprocess.call(["robot.py", theta_list[0], theta_list[1], theta_list[2], theta_list[3], theta_list[4], theta_list[5], theta_list[6]])
 
                     sleep(20)   # sleep for a while
 
