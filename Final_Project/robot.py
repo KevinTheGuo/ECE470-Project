@@ -225,4 +225,46 @@ if __name__ == "__main__":
         r.abs_move_joint(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7])
         print("Movement finished")
 
+    # Check if this is an abs cmd
+    if num_args == 4:
+        print(sys.argv)
+
+
+        r.get_info()
+        print("Current robot position is x:{}, y:{}, z:{}".format(r.x, r.y, r.z))
+
+        rel_xmove = -int(r.x - float(sys.argv[1]))
+        rel_ymove = -int(r.y - float(sys.argv[2]))
+        rel_zmove = -int(r.z - float(sys.argv[3]))
+        print("Desired relative movement is x:{}, y:{}, z:{}".format(rel_xmove, rel_ymove, rel_zmove))
+
+        # Move the robot!
+        print("Moving the robot")
+        # r.rel_move_cart(x=rel_xmove,y=rel_ymove,z=rel_zmove)
+        r.rel_move_cart(x=50,y=50,z=50)
+        print("Movement finished")
+
+        r.get_info()
+        print("New robot position is x:{}, y:{}, z:{}".format(r.x, r.y, r.z))
+
     sys.exit()
+
+
+
+# print(sys.argv)
+#
+# r.get_info()
+# print("Current robot position is x:{}, y:{}, z:{}".format(r.x, r.y, r.z))
+#
+# rel_xmove = -int(r.x - float(sys.argv[1]))
+# rel_ymove = -int(r.y - float(sys.argv[2]))
+# rel_zmove = -int(r.z - float(sys.argv[3]))
+# print("Desired relative movement is x:{}, y:{}, z:{}".format(rel_xmove, rel_ymove, rel_zmove))
+#
+# # Move the robot!
+# print("Moving the robot")
+# r.rel_move_cart(x=rel_xmove,y=rel_ymove,z=rel_zmove)
+# print("Movement finished")
+#
+# r.get_info()
+# print("New robot position is x:{}, y:{}, z:{}".format(r.x, r.y, r.z))

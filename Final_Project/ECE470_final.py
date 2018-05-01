@@ -72,6 +72,10 @@ try:
                         thetas[i] += 360
                     while thetas[i] > 180:
                         thetas[i] -= 360
+                    if thetas[5] > 120:
+                        thetas[5] -= 180
+                    elif thetas[5] < -120:
+                        thetas[5] += 180
                     print("theta_", i+1, "is", thetas[i])
 
             #     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
