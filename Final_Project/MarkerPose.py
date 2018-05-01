@@ -91,7 +91,7 @@ def markerPoseFinder(w, K, q):
             break
 
         x = expm(bracket(u)) @ x   # If u isn't within error tolerance, update our guess x
-        if iterations > 50:   # If we exceed a set number of iterations, just end
+        if iterations > 15:   # If we exceed a set number of iterations, just end
             return -1, None
 
     return iterations, x
@@ -119,8 +119,8 @@ def findAndDrawMarkers(frame):
     frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
     if (len(corners) > 0):
-        num_iterations, custom_pose = markerPoseFinder(.125, camera_matrix, np.transpose(corners[0][0]))
-        print("num iterations is {}".format(num_iterations))
+        num_iterations, custom_pose = markerPoseFinder(.066, camera_matrix, np.transpose(corners[0][0]))
+        # print("num iterations is {}".format(num_iterations))
         if num_iterations != -1:
             custom_pose = np.round(custom_pose, decimals=3)
             custom_rotation = custom_pose[0:3,0:3]
@@ -128,7 +128,7 @@ def findAndDrawMarkers(frame):
             custom_rvec, jacobian = cv2.Rodrigues(custom_rotation)
             #print("Custom pose is rotation: \n{}, translation: {}".format(custom_rotation, custom_translation))
             #print("Custom rvec is: {}".format(custom_rvec))
-            frame = cv2.aruco.drawAxis(frame, camera_matrix, dist_coeffs, custom_rvec, custom_translation, 0.1)
+            frame = cv2.aruco.drawAxis(frame, camera_matrix, dist_coeffs, custom_rvec, custom_translation, 0.05)
             cv2.putText(frame, "Translation: {}".format(custom_translation), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 255), 2)
             cv2.putText(frame, "Rotation: {}".format(custom_rotation[0]), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 255), 2)
             cv2.putText(frame, "{}".format(custom_rotation[1]), (75, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 255), 2)

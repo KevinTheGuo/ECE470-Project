@@ -12,6 +12,7 @@ spec.loader.exec_module(cv2)
 
 import subprocess        # Import subprocess to call python2 code robot.py
 import numpy as np       # Numpy for transformation stuff
+from scipy.stats import special_ortho_group
 
 # Import our other helper files
 import MarkerPose
