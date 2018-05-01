@@ -58,8 +58,7 @@ try:
             print("----------------------------------------------------------------------")
             T_markInBot = T_camInBot @ T_markInCam
             print(T_markInBot)
-
-            thetas = inverse_kinematics.inverse_kinematics(T_markInBot, iterationMax=25)  # inverse kinematics returns in radians
+            thetas = inverse_kinematics.inverse_kinematics(T_markInBot, iterationMax=15)  # inverse kinematics
             if thetas is not None:          # Make sure that inverse kinematics has converged.
                 print("Inverse kinematics has converged! First theta list: ")
                 for i in range(7):
