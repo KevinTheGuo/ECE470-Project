@@ -10,8 +10,8 @@ spec = importlib.util.spec_from_file_location("cv2", "/home/lfsony/.local/lib/py
 cv2 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cv2)
 
-# Import subprocess to call python2 code robot.py
-import subprocess
+import subprocess        # Import subprocess to call python2 code robot.py
+import numpy as np       # Numpy for transformation stuff
 
 # Import our other helper files
 import MarkerPose
