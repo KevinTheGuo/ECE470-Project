@@ -204,6 +204,7 @@ class Robot(object):
         self.s.close()
 
 if __name__ == "__main__":
+    print("Initializing robot please wait!")
     r = Robot()
     #r.abs_move_joint(-150, 0, -150, 0, -150, 0, -150)
     #r.abs_move_joint(150,0,150,0,150,0,150)
@@ -220,6 +221,8 @@ if __name__ == "__main__":
         print(sys.argv)
 
         # Move the robot!
-        r.abs_move_joint(argv[1],argv[2],argv[3],argv[4],argv[5],argv[6],argv[7])
+        print("Moving the robot")
+        r.abs_move_joint(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7])
+        print("Movement finished")
 
     sys.exit()

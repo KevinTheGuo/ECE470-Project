@@ -16,6 +16,7 @@ import numpy as np       # Numpy for transformation stuff
 # Import our other helper files
 import MarkerPose
 import inverse_kinematics
+import sys
 
 # Transformation matrix T_camInBot
 T_camInBot = np.array([[-1, 0, 0, 0   ],
