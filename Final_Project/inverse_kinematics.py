@@ -89,7 +89,7 @@ def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=50):
         J[0:6,6:7] = jacobian(S,theta,7)
 
         # 4: Perform inverse velocity kinematics, find thetadot. But use our new algorithm this time!
-        mu = 0.03
+        mu = 0.01
         thetadot = sl.inv(np.transpose(J)@J + mu*np.identity(7)) @ np.transpose(J) @ V
 
         # 5: Calculate new theta by applying our calculated thetadot for 1 second
@@ -97,7 +97,7 @@ def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=50):
 
         # 6: Repeat until we are below cutoff
         # print("Distance is {}".format(np.linalg.norm(V)))
-        if(np.linalg.norm(V) < 0.1):
+        if(np.linalg.norm(V) < 0.01):
             # print("\nDing!... Your answer is ready!\n")
             # print("Took {} iterations to converge".format(iterations))
             return(theta)
