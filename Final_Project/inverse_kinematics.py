@@ -97,9 +97,9 @@ def inverse_kinematics(T_1in0, initial_guess=np.full((7,1),0), iterationMax=50):
 
         # 6: Repeat until we are below cutoff
         # print("Distance is {}".format(np.linalg.norm(V)))
-        if(np.linalg.norm(V) < 0.01):
+        if(np.linalg.norm(V) < 0.1):
             # print("\nDing!... Your answer is ready!\n")
-            print(repr(theta))
+            print("Took {} iterations to converge".format(iterations))
             return(theta)
 
         # 7: Check if we surpass our defined maximum number of iterations
