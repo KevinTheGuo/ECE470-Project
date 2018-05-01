@@ -19,11 +19,12 @@ from scipy.stats import special_ortho_group
 import MarkerPose
 import inverse_kinematics
 import sys
+from time import sleep
 
 # Transformation matrix T_camInBot
-T_camInBot = np.array([[-1, 0, 0, -.07 ],
+T_camInBot = np.array([[-1, 0, 0, 0],
                        [ 0, 0,-1,-0.07],
-                       [ 0,-1, 0, 0.05],
+                       [ 0,-1, 0, 0.15],
                        [ 0, 0, 0, 1   ]])
 
 print('Starting up!')
@@ -35,6 +36,14 @@ if not video.isOpened():
     print('Could not open video!')
     sys.exit()
 
+
+x_absolute = -50
+y_absolute = -650
+z_absolute = 450
+
+T_markInBot = None
+enter_pressed = 0
+
 try:
     while(True):
         # Check for user input
@@ -42,6 +51,28 @@ try:
         if key == 27:
             print('Exiting program!')
             break
+        elif key == 13:
+            print("Moving robot to point!")
+            thetas = inverse_kinematics.inverse_kinematics(T_markInBot, iterationMax=15)  # inverse kinematics
+            if thetas is not None:          # Make sure that inverse kinematics has converged.
+                print("Inverse kinematics has converged! Theta list: ")
+                for i in range(7):
+                    thetas[i] = thetas[i] * (180 / math.pi)  # Convert thetas (rad -> degrees)
+                    while thetas[i] <= -180:
+                        thetas[i] += 360
+                    while thetas[i] > 180:
+                        thetas[i] -= 360
+                    if thetas[5] > 120:
+                        thetas[5] -= 180
+                    elif thetas[5] < -120:
+                        thetas[5] += 180
+                    print("theta_", i+1, "is", thetas[i])
+                # subprocess.call("python robot.py {} {} {} {} {} {} {}"
+                #                  .format(thetas[0],thetas[1],thetas[2],thetas[3],thetas[4],thetas[5],thetas[6]), shell=True)
+            else:
+                print("Inverse kinematics did not converge")
+            subprocess.call("python robot.py {} {} {} {}".format(x_absolute, y_absolute, z_absolute, enter_pressed), shell=True)
+            enter_pressed += 1
 
         # Grab another frame
         read_success, frame = video.read()
@@ -63,20 +94,10 @@ try:
             # Also, make the end effector pose straight, and not dependent on the marker pose
             # T_markInBot[0:3,0:3] = np.array([[-1,0,0],[0,-1,0],[0,0,1]])
 
-            thetas = inverse_kinematics.inverse_kinematics(T_markInBot, iterationMax=15)  # inverse kinematics
-            if thetas is not None:          # Make sure that inverse kinematics has converged.
-                print("Inverse kinematics has converged! First theta list: ")
-                for i in range(7):
-                    thetas[i] = thetas[i] * (180 / math.pi)  # Convert thetas (rad -> degrees)
-                    while thetas[i] <= -180:
-                        thetas[i] += 360
-                    while thetas[i] > 180:
-                        thetas[i] -= 360
-                    if thetas[5] > 120:
-                        thetas[5] -= 180
-                    elif thetas[5] < -120:
-                        thetas[5] += 180
-                    print("theta_", i+1, "is", thetas[i])
+            if (T_markInBot[1,3] < 0):
+                x_absolute = T_markInBot[0,3]*1000
+                y_absolute = T_markInBot[1,3]*1000
+                z_absolute = T_markInBot[2,3]*1000
 
             #     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
             #     subprocess.call("python robot.py {} {} {} {} {} {} {}"

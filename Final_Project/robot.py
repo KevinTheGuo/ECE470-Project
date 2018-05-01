@@ -226,43 +226,30 @@ if __name__ == "__main__":
         print("Movement finished")
 
     # Check if this is an abs cmd
-    if num_args == 4:
+    if num_args == 5:
         print(sys.argv)
 
 
         r.get_info()
         print("Current robot position is x:{}, y:{}, z:{}".format(r.x, r.y, r.z))
 
-        rel_xmove = -int(r.x - float(sys.argv[1]))
-        rel_ymove = -int(r.y - float(sys.argv[2]))
-        rel_zmove = -int(r.z - float(sys.argv[3]))
+        rel_xmove = -(r.x - float(sys.argv[1]))
+        rel_ymove = -(r.y - float(sys.argv[2]))
+        rel_zmove = -(r.z - float(sys.argv[3]))
         print("Desired relative movement is x:{}, y:{}, z:{}".format(rel_xmove, rel_ymove, rel_zmove))
 
         # Move the robot!
         print("Moving the robot")
-        while (abs(rel_xmove) > 10 or abs(rel_ymove) > 10 or abs(rel_zmove) > 10):
-            # Clip our movement to a range of 50
-            if rel_xmove > 50:
-                rel_xmove = 50
-            elif rel_xmove < -50:
-                rel_xmove = -50
-            if rel_ymove > 50:
-                rel_ymove = 50
-            elif rel_ymove < -50:
-                rel_ymove = -50
-            if rel_zmove > 50:
-                rel_zmove = 50
-            elif rel_zmove < -50:
-                rel_zmove = -50
 
-            r.rel_move_cart(x=rel_xmove, y=rel_ymove, z=rel_zmove)
+        # r.rel_move_cart(x=-rel_xmove, y=-rel_zmove, z=-rel_ymove)
+        if sys.argv[4] == '1':
+            r.rel_move_cart(x=50, y=-700, z=200)
+        else:
+            r.rel_move_cart(x=sys.argv[1], y=sys.argv[2], z=sys.argv[3])
 
-            r.get_info()   # Get our new desired relative movement
-            rel_xmove = -int(r.x - float(sys.argv[1]))
-            rel_ymove = -int(r.y - float(sys.argv[2]))
-            rel_zmove = -int(r.z - float(sys.argv[3]))
 
         print("Movement finished")
+        sys.exit()
 
         r.get_info()
         print("New robot position is x:{}, y:{}, z:{}".format(r.x, r.y, r.z))
