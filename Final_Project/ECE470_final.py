@@ -17,6 +17,12 @@ import subprocess
 import MarkerPose
 import inverse_kinematics
 
+# Transformation matrix T_camInBot
+T_camInBot = np.array([[-1, 0, 0, 0   ],
+                       [ 0, 0,-1,-0.17],
+                       [ 0,-1, 0, 0.02],
+                       [ 0, 0, 0, 1   ]])
+
 # Try to grab video input
 video = cv2.VideoCapture(0)
 # Exit if video not opened.
@@ -38,22 +44,28 @@ if not video.isOpened():
                 break
 
             # Find the marker pose and draw stuff.
-            frame, isValid, pose = findAndDrawMarkers(frame)
+            frame, isValid, T_markInCam = findAndDrawMarkers(frame)
             cv2.imshow("ECE470 Final Project", frame)
 
             # If we found a marker pose and converged to it, then move the robot there!
             if (isValid != -1):
-                thetas = inverse_kinematics.inverse_kinematics(pose)  # inverse kinematics
+                # First, transform the pose in camera frame to be in the robot frame
+                print("----------------------------------------------------------------------")
+                T_markInBot = T_camInBot @ T_markInCam
+                print(T_markInBot)
+
+                thetas = inverse_kinematics.inverse_kinematics(T_markInBot)  # inverse kinematics
                 if thetas is not None:          # Make sure that inverse kinematics has converged.
                     print("Inverse kinematics has converged! First theta list: ")
                     for i in range(7):
                         print("theta_", i+1, "is", thetas[i])
-                    sleep(1)
+                    sleep(5)
 
-                    # Call robot.py with specific command-line arguments, to move the robot to those joint angles
-                    subprocess.call("python robot.py {} {} {} {} {} {} {}".format(thetas[0],thetas[1],thetas[2],thetas[3],thetas[4],thetas[5],thetas[6]), shell=True)
-
-                    sleep(20)   # sleep for a while
+                #     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
+                #     subprocess.call("python robot.py {} {} {} {} {} {} {}"
+                #                     .format(thetas[0],thetas[1],thetas[2],thetas[3],thetas[4],thetas[5],thetas[6]), shell=True)
+                #
+                #     sleep(20)   # sleep for a while
 
     except (Exception, KeyboardInterrupt) as e:
         video.release()
