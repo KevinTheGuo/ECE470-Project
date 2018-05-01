@@ -58,6 +58,9 @@ try:
             print("----------------------------------------------------------------------")
             T_markInBot = T_camInBot @ T_markInCam
             print(T_markInBot)
+            # Also, make the end effector pose straight, and not dependent on the marker pose
+            T_markInBot[0:3,0:3] = np.array([[1,0,0],[0,-1,0],[0,0,0]])
+
             thetas = inverse_kinematics.inverse_kinematics(T_markInBot, iterationMax=15)  # inverse kinematics
             if thetas is not None:          # Make sure that inverse kinematics has converged.
                 print("Inverse kinematics has converged! First theta list: ")
