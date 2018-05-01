@@ -31,7 +31,7 @@ video = cv2.VideoCapture(1)
 # Exit if video not opened.
 if not video.isOpened():
     print('Could not open video!')
-    exit()
+    sys.exit()
 
 try:
     while(True):
@@ -48,7 +48,7 @@ try:
             break
 
         # Find the marker pose and draw stuff.
-        frame, isValid, T_markInCam = findAndDrawMarkers(frame)
+        frame, isValid, T_markInCam = MarkerPose.findAndDrawMarkers(frame)
         cv2.imshow("ECE470 Final Project", frame)
         # If we found a marker pose and converged to it, then move the robot there!
         if (isValid != -1):
@@ -69,11 +69,11 @@ try:
             #
             #     sleep(20)   # sleep for a while
 
-    except (Exception, KeyboardInterrupt) as e:
-        print('Exception encountered!')
-        video.release()
-        cv2.destroyAllWindows()
-        raise e
-
+except (Exception, KeyboardInterrupt) as e:
+    print('Exception encountered!')
     video.release()
     cv2.destroyAllWindows()
+    raise e
+
+video.release()
+cv2.destroyAllWindows()
