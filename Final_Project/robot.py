@@ -240,8 +240,28 @@ if __name__ == "__main__":
 
         # Move the robot!
         print("Moving the robot")
-        # r.rel_move_cart(x=rel_xmove,y=rel_ymove,z=rel_zmove)
-        r.rel_move_cart(x=50,y=50,z=50)
+        while(abs(rel_xmove) > 10) and abs(rel_ymove) > 10) and abs(rel_zmove) > 10):
+            # Clip our movement to a range of 50
+            if rel_xmove > 50:
+                rel_xmove = 50
+            elif rel_xmove < -50:
+                rel_xmove = -50
+            if rel_ymove > 50:
+                rel_ymove = 50
+            elif rel_ymove < -50:
+                rel_ymove = -50
+            if rel_zmove > 50:
+                rel_zmove = 50
+            elif rel_zmove < -50:
+                rel_zmove = -50
+
+            r.get_info()   # Get our new desired relative movement
+            rel_xmove = -int(r.x - float(sys.argv[1]))
+            rel_ymove = -int(r.y - float(sys.argv[2]))
+            rel_zmove = -int(r.z - float(sys.argv[3]))
+
+            r.rel_move_cart(x=rel_xmove,y=rel_ymove,z=rel_zmove)
+
         print("Movement finished")
 
         r.get_info()
