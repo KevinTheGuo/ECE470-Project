@@ -63,17 +63,10 @@ try:
                 print("Inverse kinematics has converged! First theta list: ")
                 for i in range(7):
                     thetas[i] = thetas[i] * (180 / math.pi)  # Convert thetas (rad -> degrees)
-<<<<<<< HEAD
-                    if (thetas[i] >= 180)
-                        thetas[i] = thetas[i] - 360
-                    if (thetas[i] <= -180)
-                        thetas[i] = thetas[i] + 360
-=======
                     while thetas[i] <= -180:
                         thetas[i] += 360
                     while thetas[i] > 180:
                         thetas[i] -= 360
->>>>>>> a05e6188f2a5dcddb49bd58f05312b6f7c013422
                     print("theta_", i+1, "is", thetas[i])
 
             #     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
