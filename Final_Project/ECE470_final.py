@@ -16,6 +16,7 @@ import subprocess
 # Import our other helper files
 import MarkerPose
 import inverse_kinematics
+import sys
 
 # Try to grab video input
 video = cv2.VideoCapture(0)
