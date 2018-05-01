@@ -56,6 +56,8 @@ try:
         if (isValid != -1):
             # First, transform the pose in camera frame to be in the robot frame
             print("----------------------------------------------------------------------")
+            # Also, make the end effector pose straight, and not dependent on the marker pose
+            T_markInCam[0:3,0:3] = np.array([[0,-1,0],[-1,0,0],[0,0,-1]])
             T_markInBot = T_camInBot @ T_markInCam
             print(T_markInBot)
             # Also, make the end effector pose straight, and not dependent on the marker pose
