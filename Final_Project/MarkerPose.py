@@ -55,46 +55,46 @@ def eta_d(array):
 # returns two variables- an integer num_iterations tracking the number of iterations to converage,
 #                        and a pose matrix if numIterations is not -1
 def markerPoseFinder(w, K, q):
-    MIN_ERR = 1e-2 # Defined constants
+    MIN_ERR = 0.1 # Defined constants
     MU = 1e-3
 
     p_intag = np.array([[-w/2,w/2,w/2,-w/2],[w/2,w/2,-w/2,-w/2],[0,0,0,0],[1,1,1,1]])  # Get p of the tag frame, based on w
     q_inimage = np.ones((3,4))  # Put q in homogenous coordinates
     q_inimage[0:2,0:4] = q
 
-    x = np.eye(4,4)  # Make first pose guess
-    x[0:3,3:4] = np.array([[0],[0],[0.5]])
+    # Loop until we converge
+    for i in range(10):
+        # print("outer loop is {}".format(i))
+        x = np.eye(4,4)  # Make pose guess
+        z_guess = np.random.rand()*5 + 0.1
+        x[0:3,3:4] = np.array([[0],[0],[z_guess]])
+        x[0:3,0:3] = special_ortho_group.rvs(3)
 
-    iterations = 0
-    while(True):  # Levenberg-Marquardt
-        iterations += 1
+        for j in range(15):   # levenberg-marquardt
+#             print("inner loop is {}".format(j))
+            # Initialize variables
+            u_sum1, u_sum2 = 0,0
+            b = np.zeros((4,1))
+            J = np.zeros((4,6))
+            u = np.zeros((6,1))
 
-        # Initialize variables
-        u_sum1, u_sum2 = 0,0
-        b = np.zeros((4,1))
-        J = np.zeros((4,6))
-        u = np.zeros((6,1))
+            for i in range(4):  # Iterate over each point and the corresponding pair, adding to our sum variables
+                q_point = q_inimage[0:3,i]
+                p_point = p_intag[0:4,i]
 
-        for i in range(4):  # Iterate over each point and the corresponding pair, adding to our sum variables
-            q_point = q_inimage[0:3,i]
-            p_point = p_intag[0:4,i]
+                b[0:3,0] = q_point - eta(K @ standard_projection @ x @ p_point)   # Calculate b
+                for j in range(6):                       # Calculate J (df/du)
+                    basis = np.eye(6,6)[0:6,j:j+1]
+                    J[0:3,j] = eta_d(K @ standard_projection @ x @ p_point) @ K @ standard_projection @ bracket(basis) @ x @ p_point
+                u_sum1 += np.transpose(J)@J  # Add our contribution to the two sums that help build u
+                u_sum2 += np.transpose(J)@b
 
-            b[0:3,0] = q_point - eta(K @ standard_projection @ x @ p_point)   # Calculate b
-            for j in range(6):                       # Calculate J (df/du)
-                basis = np.eye(6,6)[0:6,j:j+1]
-                J[0:3,j] = eta_d(K @ standard_projection @ x @ p_point) @ K @ standard_projection @ bracket(basis) @ x @ p_point
-            u_sum1 += np.transpose(J)@J  # Add our contribution to the two sums that help build u
-            u_sum2 += np.transpose(J)@b
+            u[0:6,0:1] = inv(u_sum1 + MU*np.eye(6,6)) @ u_sum2  # Finish calculating u from its sums
+            if norm(u) < MIN_ERR:  # Check to see if u is within our error tolerance. If it is, return!
+                return j, x
 
-        u[0:6,0:1] = inv(u_sum1 + MU*np.eye(6,6)) @ u_sum2  # Finish calculating u from its sums
-        if norm(u) < MIN_ERR:  # Check to see if u is within our error tolerance
-            break
-
-        x = expm(bracket(u)) @ x   # If u isn't within error tolerance, update our guess x
-        if iterations > 15:   # If we exceed a set number of iterations, just end
-            return -1, None
-
-    return iterations, x
+            x = expm(bracket(u)) @ x   # If u isn't within error tolerance, update our guess x
+    return -1, None
 
 # CODE FOR ECE470 FINAL PROJECT- takes in frame, draws on it and returns----------------------------------------------------
 
