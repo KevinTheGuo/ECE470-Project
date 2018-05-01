@@ -120,6 +120,7 @@ def findAndDrawMarkers(frame):
 
     if (len(corners) > 0):
         num_iterations, custom_pose = markerPoseFinder(.125, camera_matrix, np.transpose(corners[0][0]))
+        print("num iterations is {}".format(num_iterations))
         if num_iterations != -1:
             custom_pose = np.round(custom_pose, decimals=3)
             custom_rotation = custom_pose[0:3,0:3]

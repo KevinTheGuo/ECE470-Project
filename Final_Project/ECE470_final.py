@@ -50,7 +50,6 @@ if not video.isOpened():
             # Find the marker pose and draw stuff.
             frame, isValid, T_markInCam = findAndDrawMarkers(frame)
             cv2.imshow("ECE470 Final Project", frame)
-
             # If we found a marker pose and converged to it, then move the robot there!
             if (isValid != -1):
                 # First, transform the pose in camera frame to be in the robot frame
