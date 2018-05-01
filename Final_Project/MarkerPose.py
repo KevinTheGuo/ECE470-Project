@@ -91,7 +91,7 @@ def markerPoseFinder(w, K, q):
             break
 
         x = expm(bracket(u)) @ x   # If u isn't within error tolerance, update our guess x
-        if iterations > 20:   # If we exceed a set number of iterations, just end
+        if iterations > 50:   # If we exceed a set number of iterations, just end
             return -1, None
 
     return iterations, x
