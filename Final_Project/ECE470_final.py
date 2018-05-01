@@ -43,15 +43,15 @@ if not video.isOpened():
 
             # If we found a marker pose and converged to it, then move the robot there!
             if (isValid != -1):
-                theta_list = inverse_kinematics.inverse_kinematics(pose)  # inverse kinematics
-                if theta_list is not None:          # Make sure that inverse kinematics has converged.
+                thetas = inverse_kinematics.inverse_kinematics(pose)  # inverse kinematics
+                if thetas is not None:          # Make sure that inverse kinematics has converged.
                     print("Inverse kinematics has converged! First theta list: ")
                     for i in range(7):
-                        print("theta_", i+1, "is", theta_list[i])
+                        print("theta_", i+1, "is", thetas[i])
                     sleep(1)
 
                     # Call robot.py with specific command-line arguments, to move the robot to those joint angles
-                    subprocess.call("python robot.py {} {} {} {} {} {} {}".format(theta_list[0],theta_list[1],theta_list[2],theta_list[3],theta_list[4],theta_list[5],theta_list[6]), shell=True)
+                    subprocess.call("python robot.py {} {} {} {} {} {} {}".format(thetas[0],thetas[1],thetas[2],thetas[3],thetas[4],thetas[5],thetas[6]), shell=True)
 
                     sleep(20)   # sleep for a while
 

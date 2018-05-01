@@ -3,6 +3,7 @@ import socket
 
 from time import sleep, time
 import gripper
+import sys
 
 
 class Robot(object):
@@ -211,47 +212,14 @@ if __name__ == "__main__":
     # r.rel_move_cart(z=-150)
     # r.get_info()
 
-    # Try to grab video input
-    video = cv2.VideoCapture(0)
-    # Exit if video not opened.
-    if not video.isOpened():
-        print('Could not open video!')
-        exit()
+    num_args = len(sys.argv)
+    print("Got {} args".format(num_args))
 
-        try:
-            while(True):
-                # Check for user input
-                key = cv2.waitKey(1) & 0xff
-                if key == 27:
-                    break
+    # Check if this is a joint movement command
+    if num_args == 8:
+        print(sys.argv)
 
-                # Grab another frame
-                read_success, frame = video.read()
-                if not read_success:
-                    print('Cannot read video file!')
-                    break
+        # Move the robot!
+        r.abs_move_joint(argv[1],argv[2],argv[3],argv[4],argv[5],argv[6],argv[7])
 
-                # Find the marker pose and draw stuff.
-                frame, isValid, pose = findAndDrawMarkers(frame)
-                cv2.imshow("ECE470 Final Project", frame)
-
-                # If we found a marker pose and converged to it, then move the robot there!
-                if (isValid != -1):
-                    theta_list = inverse_kinematics.inverse_kinematics(pose)  # inverse kinematics
-                    if theta_list is not None:          # Make sure that inverse kinematics has converged.
-                        print("Inverse kinematics has converged! First theta list: ")
-                        for i in range(7):
-                            print("theta_", i+1, "is", theta_list[i])
-                        sleep(1)
-
-                        # Move the robot there
-                        r.abs_move_joint(theta_list[0],theta_list[1],theta_list[2],theta_list[3],theta_list[4],theta_list[5],theta_list[6])
-                        sleep(20)   # sleep for a while
-
-        except (Exception, KeyboardInterrupt) as e:
-            video.release()
-            cv2.destroyAllWindows()
-            raise e
-
-        video.release()
-        cv2.destroyAllWindows()
+    sys.exit()
